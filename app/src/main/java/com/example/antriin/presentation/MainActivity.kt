@@ -1,4 +1,4 @@
-package com.example.antriin
+package com.example.antriin.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
