@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "643590682130",
+    "project_id": "antriin-2bc94",
+    "storage_bucket": "antriin-2bc94.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:643590682130:android:449e303d319c80a9778acb",
+        "android_client_info": {
+          "package_name": "com.example.antriin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUv-xkK9wh609Tk0yTEFLYp1gPdvurwIg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
