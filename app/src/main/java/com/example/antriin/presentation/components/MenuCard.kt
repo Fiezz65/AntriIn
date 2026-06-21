@@ -30,6 +30,7 @@ import com.example.antriin.domain.model.Menu
 import com.example.antriin.presentation.theme.PrimaryOrange
 import com.example.antriin.presentation.theme.TextBlack
 import com.example.antriin.presentation.theme.TextGray
+import com.example.antriin.utils.formatRupiah
 
 @Composable
 fun MenuCard(
@@ -76,7 +77,7 @@ fun MenuCard(
                     color = TextGray
                 )
                 Text(
-                    text = "Rp ${menu.price}",
+                    text = formatRupiah(menu.price),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = PrimaryOrange,

@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,6 +27,7 @@ import com.example.antriin.domain.model.CartItem
 import com.example.antriin.presentation.theme.PrimaryOrange
 import com.example.antriin.presentation.theme.TextBlack
 import com.example.antriin.presentation.theme.TextGray
+import com.example.antriin.utils.formatRupiah
 
 @Composable
 fun CartItemCard(
@@ -72,8 +74,16 @@ fun CartItemCard(
                     fontSize = 12.sp,
                     color = TextGray
                 )
+                if (cartItem.notes.isNotEmpty()) {
+                    Text(
+                        text = "Catatan: ${cartItem.notes}",
+                        fontSize = 12.sp,
+                        fontStyle = FontStyle.Italic,
+                        color = PrimaryOrange
+                    )
+                }
                 Text(
-                    text = "Rp ${cartItem.price}",
+                    text = formatRupiah(cartItem.price),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = PrimaryOrange,
