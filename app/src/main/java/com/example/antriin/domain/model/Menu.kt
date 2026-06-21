@@ -7,5 +7,6 @@ data class Menu(
     val description: String = "",
     val price: Int = 0,
     val category: String = "",
-    val isSoldOut: Boolean = false
+    val isSoldOut: Boolean = false,
+    val icon: String = "🍽️"
 )

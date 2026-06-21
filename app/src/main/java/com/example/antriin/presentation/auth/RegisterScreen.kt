@@ -3,12 +3,14 @@ package com.example.antriin.presentation.auth
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -16,13 +18,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -64,6 +68,29 @@ fun RegisterScreen(
 
     var canteenName by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
+
+    var isLocationDropdownExpanded by remember { mutableStateOf(false) }
+    var isFacultyDropdownExpanded by remember { mutableStateOf(false) }
+    var isMajorDropdownExpanded by remember { mutableStateOf(false) }
+
+    val campusList = listOf(
+        "Fakultas Teknik (Banjarmasin)",
+        "Fakultas Teknik (Banjarbaru)",
+        "Fakultas Ekonomi dan Bisnis",
+        "Fakultas Hukum",
+        "Fakultas Pertanian",
+        "Fakultas Kehutanan",
+        "Fakultas Perikanan",
+        "Fakultas Kedokteran",
+        "Fakultas Ilmu Sosial dan Ilmu Politik",
+        "Fakultas Keguruan dan Ilmu Pendidikan"
+    )
+
+    val majorList = when (faculty) {
+        "Fakultas Teknik (Banjarmasin)" -> listOf("Teknologi Informasi")
+        "Fakultas Teknik (Banjarbaru)" -> listOf("Teknik Sipil", "Teknik Mesin", "Teknik Kimia", "Teknik Lingkungan", "Rekayasa Elektro", "Rekayasa Geologi")
+        else -> listOf("Belum ada data program studi")
+    }
 
     Column(
         modifier = Modifier
@@ -194,35 +221,121 @@ fun RegisterScreen(
             label = "Nomor Telepon",
             placeholder = "08xxxxxxxxxx",
             leadingIcon = Icons.Default.Phone,
-            keyboardType = KeyboardType.Phone
+            keyboardType = KeyboardType.Phone,
+            imeAction = ImeAction.Done
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         if (selectedRole == "Mahasiswa") {
-            CustomTextField(
-                value = faculty,
-                onValueChange = { faculty = it },
-                label = "Fakultas",
-                placeholder = "Masukkan Fakultas"
-            )
+            Box {
+                CustomTextField(
+                    value = faculty,
+                    onValueChange = { },
+                    label = "Fakultas",
+                    placeholder = "Pilih Fakultas",
+                    imeAction = ImeAction.Done
+                )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable { isFacultyDropdownExpanded = true }
+                )
+                DropdownMenu(
+                    expanded = isFacultyDropdownExpanded,
+                    onDismissRequest = { isFacultyDropdownExpanded = false },
+                    modifier = Modifier
+                        .background(Color.White)
+                        .heightIn(max = 220.dp)
+                ) {
+                    campusList.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(text = option, color = TextBlack) },
+                            onClick = {
+                                faculty = option
+                                studyProgram = ""
+                                isFacultyDropdownExpanded = false
+                            },
+                            modifier = Modifier.background(Color.White)
+                        )
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
-            CustomTextField(
-                value = studyProgram,
-                onValueChange = { studyProgram = it },
-                label = "Program Studi",
-                placeholder = "Masukkan Program Studi",
-                imeAction = ImeAction.Done
-            )
+
+            Box {
+                CustomTextField(
+                    value = studyProgram,
+                    onValueChange = { },
+                    label = "Program Studi",
+                    placeholder = if (faculty.isEmpty()) "Pilih fakultas terlebih dahulu" else "Pilih Program Studi",
+                    imeAction = ImeAction.Done
+                )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable {
+                            if (faculty.isNotEmpty()) {
+                                isMajorDropdownExpanded = true
+                            }
+                        }
+                )
+                DropdownMenu(
+                    expanded = isMajorDropdownExpanded,
+                    onDismissRequest = { isMajorDropdownExpanded = false },
+                    modifier = Modifier
+                        .background(Color.White)
+                        .heightIn(max = 220.dp)
+                ) {
+                    majorList.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(text = option, color = TextBlack) },
+                            onClick = {
+                                if (option != "Belum ada data program studi") {
+                                    studyProgram = option
+                                }
+                                isMajorDropdownExpanded = false
+                            },
+                            modifier = Modifier.background(Color.White)
+                        )
+                    }
+                }
+            }
         } else {
-            CustomTextField(
-                value = location,
-                onValueChange = { location = it },
-                label = "Lokasi Kantin",
-                placeholder = "Contoh: Fakultas Teknik",
-                leadingIcon = Icons.Default.LocationOn,
-                imeAction = ImeAction.Done
-            )
+            Box {
+                CustomTextField(
+                    value = location,
+                    onValueChange = { },
+                    label = "Lokasi Kantin",
+                    placeholder = "Pilih Lokasi Kantin",
+                    leadingIcon = Icons.Default.LocationOn,
+                    imeAction = ImeAction.Done
+                )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable { isLocationDropdownExpanded = true }
+                )
+                DropdownMenu(
+                    expanded = isLocationDropdownExpanded,
+                    onDismissRequest = { isLocationDropdownExpanded = false },
+                    modifier = Modifier
+                        .background(Color.White)
+                        .heightIn(max = 220.dp)
+                ) {
+                    campusList.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(text = option, color = TextBlack) },
+                            onClick = {
+                                location = option
+                                isLocationDropdownExpanded = false
+                            },
+                            modifier = Modifier.background(Color.White)
+                        )
+                    }
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(32.dp))
