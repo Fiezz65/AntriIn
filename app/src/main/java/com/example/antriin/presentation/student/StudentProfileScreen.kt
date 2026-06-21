@@ -1,6 +1,7 @@
 package com.example.antriin.presentation.student
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,9 +15,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -44,17 +47,19 @@ import com.example.antriin.presentation.theme.TextGray
 @Composable
 fun StudentProfileScreen(
     onNavigate: (String) -> Unit,
+    onTabNavigate: (String) -> Unit,
     viewModel: StudentProfileViewModel = viewModel(),
     cartViewModel: CartViewModel = viewModel()
 ) {
     val user by viewModel.userProfile.collectAsState()
     val cartItems by cartViewModel.cartItems.collectAsState()
+    val dummyNotificationCount = 3
 
     Scaffold(
         bottomBar = {
             BottomNavBar(
                 currentRoute = "profile",
-                onNavigate = onNavigate,
+                onNavigate = onTabNavigate,
                 isSeller = false,
                 cartItemCount = cartItems.size
             )
@@ -75,8 +80,24 @@ fun StudentProfileScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "AntriIn", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
-                Box(modifier = Modifier.size(40.dp).background(Color(0xFFFDECE2), CircleShape), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(Color(0xFFFDECE2), CircleShape)
+                        .clickable { onNavigate("notification") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    BadgedBox(
+                        badge = {
+                            if (dummyNotificationCount > 0) {
+                                Badge(containerColor = Color.Red, contentColor = Color.White) {
+                                    Text(text = dummyNotificationCount.toString())
+                                }
+                            }
+                        }
+                    ) {
+                        Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
+                    }
                 }
             }
 
@@ -134,7 +155,7 @@ fun StudentProfileScreen(
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.ExitToApp, contentDescription = null, tint = Color.Red)
+                    Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null, tint = Color.Red)
                     Text(text = "Keluar", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.Red, modifier = Modifier.padding(start = 16.dp))
                 }
             }

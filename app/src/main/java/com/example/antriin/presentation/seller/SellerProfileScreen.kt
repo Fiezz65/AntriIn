@@ -149,7 +149,7 @@ fun SellerProfileScreen(
     Scaffold(
         bottomBar = {
             BottomNavBar(
-                currentRoute = "profile",
+                currentRoute = "seller_profile",
                 onNavigate = onTabNavigate,
                 isSeller = true
             )
