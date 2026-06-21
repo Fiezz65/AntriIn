@@ -69,6 +69,19 @@ fun BottomNavBar(
                     indicatorColor = Color(0xFFFDECE2)
                 )
             )
+            NavigationBarItem(
+                selected = currentRoute == "seller_profile",
+                onClick = { onNavigate("seller_profile") },
+                icon = { Icon(Icons.Default.Person, contentDescription = null) },
+                label = { Text("Profil") },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = PrimaryOrange,
+                    selectedTextColor = PrimaryOrange,
+                    unselectedIconColor = TextGray,
+                    unselectedTextColor = TextGray,
+                    indicatorColor = Color(0xFFFDECE2)
+                )
+            )
         } else {
             NavigationBarItem(
                 selected = currentRoute == "home",
@@ -123,20 +136,19 @@ fun BottomNavBar(
                     indicatorColor = Color(0xFFFDECE2)
                 )
             )
-        }
-
-        NavigationBarItem(
-            selected = currentRoute == "profile",
-            onClick = { onNavigate("profile") },
-            icon = { Icon(Icons.Default.Person, contentDescription = null) },
-            label = { Text("Profil") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = PrimaryOrange,
-                selectedTextColor = PrimaryOrange,
-                unselectedIconColor = TextGray,
-                unselectedTextColor = TextGray,
-                indicatorColor = Color(0xFFFDECE2)
+            NavigationBarItem(
+                selected = currentRoute == "profile",
+                onClick = { onNavigate("profile") },
+                icon = { Icon(Icons.Default.Person, contentDescription = null) },
+                label = { Text("Profil") },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = PrimaryOrange,
+                    selectedTextColor = PrimaryOrange,
+                    unselectedIconColor = TextGray,
+                    unselectedTextColor = TextGray,
+                    indicatorColor = Color(0xFFFDECE2)
+                )
             )
-        )
+        }
     }
 }

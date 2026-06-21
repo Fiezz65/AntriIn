@@ -66,6 +66,7 @@ import com.example.antriin.utils.formatRupiah
 @Composable
 fun HomeScreen(
     onNavigate: (String) -> Unit,
+    onTabNavigate: (String) -> Unit,
     viewModel: HomeViewModel = viewModel(),
     cartViewModel: CartViewModel = viewModel()
 ) {
@@ -155,7 +156,7 @@ fun HomeScreen(
                     value = noteText,
                     onValueChange = { noteText = it },
                     label = "Catatan Opsional",
-                    placeholder = "Contoh: Ga pakai sambel ya"
+                    placeholder = "Contoh: Jangan pedas, karetnya 2 ya..."
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -178,7 +179,7 @@ fun HomeScreen(
         bottomBar = {
             BottomNavBar(
                 currentRoute = "home",
-                onNavigate = onNavigate,
+                onNavigate = onTabNavigate,
                 isSeller = false,
                 cartItemCount = cartItems.size
             )

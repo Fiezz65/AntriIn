@@ -29,12 +29,13 @@ class HomeViewModel : ViewModel() {
 
     private fun loadDummyData() {
         val fetchedLocations = listOf(
-            "Kantin Fakultas Teknik",
-            "Kantin Fakultas Ekonomi dan Bisnis",
-            "Kantin Fakultas Hukum",
-            "Kantin Fakultas Pertanian",
-            "Kantin Fakultas Kehutanan",
-            "Kantin Fakultas Perikanan"
+            "Fakultas Teknik (Banjarmasin)",
+            "Fakultas Teknik (Banjarbaru)",
+            "Fakultas Ekonomi dan Bisnis",
+            "Fakultas Hukum",
+            "Fakultas Pertanian",
+            "Fakultas Kehutanan",
+            "Fakultas Perikanan"
         )
         _locations.value = fetchedLocations
 

@@ -23,11 +23,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.QrCode2
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -62,6 +64,7 @@ import com.example.antriin.utils.formatRupiah
 @Composable
 fun CartScreen(
     onNavigate: (String) -> Unit,
+    onTabNavigate: (String) -> Unit,
     viewModel: CartViewModel = viewModel()
 ) {
     val cartItems by viewModel.cartItems.collectAsState()
@@ -70,12 +73,13 @@ fun CartScreen(
     val context = LocalContext.current
 
     val dummyQrUrl = ""
+    val dummyNotificationCount = 3
 
     Scaffold(
         bottomBar = {
             BottomNavBar(
                 currentRoute = "cart",
-                onNavigate = onNavigate,
+                onNavigate = onTabNavigate,
                 isSeller = false,
                 cartItemCount = cartItems.size
             )
@@ -95,8 +99,24 @@ fun CartScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "AntriIn", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
-                Box(modifier = Modifier.size(40.dp).background(Color(0xFFFDECE2), CircleShape), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(Color(0xFFFDECE2), CircleShape)
+                        .clickable { onNavigate("notification") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    BadgedBox(
+                        badge = {
+                            if (dummyNotificationCount > 0) {
+                                Badge(containerColor = Color.Red, contentColor = Color.White) {
+                                    Text(text = dummyNotificationCount.toString())
+                                }
+                            }
+                        }
+                    ) {
+                        Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
+                    }
                 }
             }
 
@@ -227,7 +247,7 @@ fun CartScreen(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(text = "Pesan", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
                             }
                         }
                     }

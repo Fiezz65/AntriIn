@@ -19,11 +19,12 @@ import com.example.antriin.presentation.student.StudentProfileScreen
 fun SetupNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Dashboard.route
+        startDestination = Screen.Home.route
     ) {
         composable(route = Screen.Home.route) {
             HomeScreen(
-                onNavigate = { route ->
+                onNavigate = { route -> navController.navigate(route) },
+                onTabNavigate = { route ->
                     navController.navigate(route) {
                         popUpTo(Screen.Home.route) { saveState = true }
                         launchSingleTop = true
@@ -37,7 +38,8 @@ fun SetupNavGraph(navController: NavHostController) {
         }
         composable(route = Screen.Cart.route) {
             CartScreen(
-                onNavigate = { route ->
+                onNavigate = { route -> navController.navigate(route) },
+                onTabNavigate = { route ->
                     navController.navigate(route) {
                         popUpTo(Screen.Home.route) { saveState = true }
                         launchSingleTop = true
@@ -48,7 +50,8 @@ fun SetupNavGraph(navController: NavHostController) {
         }
         composable(route = Screen.Tracking.route) {
             LiveTrackingScreen(
-                onNavigate = { route ->
+                onNavigate = { route -> navController.navigate(route) },
+                onTabNavigate = { route ->
                     navController.navigate(route) {
                         popUpTo(Screen.Home.route) { saveState = true }
                         launchSingleTop = true
@@ -59,7 +62,8 @@ fun SetupNavGraph(navController: NavHostController) {
         }
         composable(route = Screen.Profile.route) {
             StudentProfileScreen(
-                onNavigate = { route ->
+                onNavigate = { route -> navController.navigate(route) },
+                onTabNavigate = { route ->
                     navController.navigate(route) {
                         popUpTo(Screen.Home.route) { saveState = true }
                         launchSingleTop = true
@@ -108,7 +112,7 @@ fun SetupNavGraph(navController: NavHostController) {
                 }
             )
         }
-        composable(route = Screen.Profile.route) {
+        composable(route = Screen.SellerProfile.route) {
             SellerProfileScreen(
                 onNavigate = { route -> navController.navigate(route) },
                 onTabNavigate = { route ->

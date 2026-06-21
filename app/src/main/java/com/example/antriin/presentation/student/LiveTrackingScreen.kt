@@ -1,6 +1,7 @@
 package com.example.antriin.presentation.student
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -43,17 +46,19 @@ import com.example.antriin.presentation.theme.TextGray
 @Composable
 fun LiveTrackingScreen(
     onNavigate: (String) -> Unit,
+    onTabNavigate: (String) -> Unit,
     viewModel: LiveTrackingViewModel = viewModel(),
     cartViewModel: CartViewModel = viewModel()
 ) {
     val queueList by viewModel.queueList.collectAsState()
     val cartItems by cartViewModel.cartItems.collectAsState()
+    val dummyNotificationCount = 3
 
     Scaffold(
         bottomBar = {
             BottomNavBar(
                 currentRoute = "tracking",
-                onNavigate = onNavigate,
+                onNavigate = onTabNavigate,
                 isSeller = false,
                 cartItemCount = cartItems.size
             )
@@ -74,8 +79,24 @@ fun LiveTrackingScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(text = "AntriIn", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
-                    Box(modifier = Modifier.size(40.dp).background(Color(0xFFFDECE2), CircleShape), contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(Color(0xFFFDECE2), CircleShape)
+                            .clickable { onNavigate("notification") },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        BadgedBox(
+                            badge = {
+                                if (dummyNotificationCount > 0) {
+                                    Badge(containerColor = Color.Red, contentColor = Color.White) {
+                                        Text(text = dummyNotificationCount.toString())
+                                    }
+                                }
+                            }
+                        ) {
+                            Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
+                        }
                     }
                 }
 
