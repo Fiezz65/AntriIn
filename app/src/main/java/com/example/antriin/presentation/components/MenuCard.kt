@@ -59,7 +59,7 @@ fun MenuCard(
                     .background(Color(0xFFFDECE2)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "🍽️", fontSize = 24.sp)
+                Text(text = menu.icon, fontSize = 24.sp)
             }
 
             Spacer(modifier = Modifier.width(12.dp))

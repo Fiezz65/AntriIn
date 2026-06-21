@@ -4,6 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.antriin.presentation.seller.DashboardScreen
+import com.example.antriin.presentation.seller.HistoryScreen
+import com.example.antriin.presentation.seller.MenuScreen
+import com.example.antriin.presentation.seller.SellerNotificationScreen
+import com.example.antriin.presentation.seller.SellerProfileScreen
 import com.example.antriin.presentation.student.CartScreen
 import com.example.antriin.presentation.student.HomeScreen
 import com.example.antriin.presentation.student.LiveTrackingScreen
@@ -14,7 +19,7 @@ import com.example.antriin.presentation.student.StudentProfileScreen
 fun SetupNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route
+        startDestination = Screen.Dashboard.route
     ) {
         composable(route = Screen.Home.route) {
             HomeScreen(
@@ -57,6 +62,58 @@ fun SetupNavGraph(navController: NavHostController) {
                 onNavigate = { route ->
                     navController.navigate(route) {
                         popUpTo(Screen.Home.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
+
+        composable(route = Screen.Dashboard.route) {
+            DashboardScreen(
+                onNavigate = { route -> navController.navigate(route) },
+                onTabNavigate = { route ->
+                    navController.navigate(route) {
+                        popUpTo(Screen.Dashboard.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
+        composable(route = Screen.SellerNotification.route) {
+            SellerNotificationScreen(onBackClick = { navController.popBackStack() })
+        }
+        composable(route = Screen.Menu.route) {
+            MenuScreen(
+                onNavigate = { route -> navController.navigate(route) },
+                onTabNavigate = { route ->
+                    navController.navigate(route) {
+                        popUpTo(Screen.Dashboard.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
+        composable(route = Screen.History.route) {
+            HistoryScreen(
+                onNavigate = { route -> navController.navigate(route) },
+                onTabNavigate = { route ->
+                    navController.navigate(route) {
+                        popUpTo(Screen.Dashboard.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
+        composable(route = Screen.Profile.route) {
+            SellerProfileScreen(
+                onNavigate = { route -> navController.navigate(route) },
+                onTabNavigate = { route ->
+                    navController.navigate(route) {
+                        popUpTo(Screen.Dashboard.route) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
                     }

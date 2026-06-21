@@ -1,9 +1,11 @@
 package com.example.antriin.presentation.components
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FormatListBulleted
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.RestaurantMenu
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -44,7 +46,7 @@ fun BottomNavBar(
             NavigationBarItem(
                 selected = currentRoute == "menu",
                 onClick = { onNavigate("menu") },
-                icon = { Icon(Icons.Default.List, contentDescription = null) },
+                icon = { Icon(Icons.Default.RestaurantMenu, contentDescription = null) },
                 label = { Text("Menu") },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = PrimaryOrange,
@@ -57,7 +59,7 @@ fun BottomNavBar(
             NavigationBarItem(
                 selected = currentRoute == "history",
                 onClick = { onNavigate("history") },
-                icon = { Icon(Icons.Default.List, contentDescription = null) },
+                icon = { Icon(Icons.Default.History, contentDescription = null) },
                 label = { Text("Riwayat") },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = PrimaryOrange,
@@ -111,7 +113,7 @@ fun BottomNavBar(
             NavigationBarItem(
                 selected = currentRoute == "tracking",
                 onClick = { onNavigate("tracking") },
-                icon = { Icon(Icons.Default.List, contentDescription = null) },
+                icon = { Icon(Icons.Default.FormatListBulleted, contentDescription = null) },
                 label = { Text("Antrean") },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = PrimaryOrange,

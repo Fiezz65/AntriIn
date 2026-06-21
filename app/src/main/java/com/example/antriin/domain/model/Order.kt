@@ -16,7 +16,8 @@ data class OrderItem(
     val menuId: String = "",
     val menuName: String = "",
     val quantity: Int = 0,
-    val price: Int = 0
+    val price: Int = 0,
+    val notes: String = ""
 )
 
 object OrderStatus {
