@@ -5,6 +5,8 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -19,7 +21,8 @@ import com.example.antriin.presentation.theme.TextGray
 fun BottomNavBar(
     currentRoute: String,
     onNavigate: (String) -> Unit,
-    isSeller: Boolean
+    isSeller: Boolean,
+    cartItemCount: Int = 0
 ) {
     NavigationBar(
         containerColor = Color.White
@@ -81,7 +84,21 @@ fun BottomNavBar(
             NavigationBarItem(
                 selected = currentRoute == "cart",
                 onClick = { onNavigate("cart") },
-                icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null) },
+                icon = {
+                    if (cartItemCount > 0) {
+                        BadgedBox(
+                            badge = {
+                                Badge(containerColor = Color.Red, contentColor = Color.White) {
+                                    Text(cartItemCount.toString())
+                                }
+                            }
+                        ) {
+                            Icon(Icons.Default.ShoppingCart, contentDescription = null)
+                        }
+                    } else {
+                        Icon(Icons.Default.ShoppingCart, contentDescription = null)
+                    }
+                },
                 label = { Text("Keranjang") },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = PrimaryOrange,
