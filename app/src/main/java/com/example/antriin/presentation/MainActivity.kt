@@ -3,45 +3,34 @@ package com.example.antriin.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.antriin.ui.theme.AntriInTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.example.antriin.presentation.auth.LoginScreen
+import com.example.antriin.presentation.auth.RegisterScreen
+import com.example.antriin.presentation.theme.AntriInTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             AntriInTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+                var showLogin by remember { mutableStateOf(true) }
+
+                if (showLogin) {
+                    LoginScreen(
+                        onNavigateToRegister = { showLogin = false },
+                        onLoginClick = { email, password, role -> }
+                    )
+                } else {
+                    RegisterScreen(
+                        onNavigateToLogin = { showLogin = true },
+                        onRegisterStudentClick = { fullName, studentId, email, password, phoneNumber, faculty, major -> },
+                        onRegisterSellerClick = { canteenName, email, password, phoneNumber, location -> }
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AntriInTheme {
-        Greeting("Android")
     }
 }
