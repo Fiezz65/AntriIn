@@ -27,8 +27,6 @@ fun SetupNavGraph(navController: NavHostController) {
             LoginScreen(
                 onNavigateToRegister = { navController.navigate(Screen.Register.route) },
                 onLoginClick = { email, password, role ->
-                    // Auth logic will be handled by AuthViewModel
-                    // For now, simple navigation based on role
                     if (role == "Mahasiswa") {
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Login.route) { inclusive = true }
@@ -45,13 +43,11 @@ fun SetupNavGraph(navController: NavHostController) {
             RegisterScreen(
                 onNavigateToLogin = { navController.popBackStack() },
                 onRegisterStudentClick = { fullName, studentId, email, password, phone, faculty, studyProgram ->
-                    // Handle registration logic
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 },
                 onRegisterSellerClick = { canteenName, email, password, phone, location ->
-                    // Handle registration logic
                     navController.navigate(Screen.Dashboard.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }

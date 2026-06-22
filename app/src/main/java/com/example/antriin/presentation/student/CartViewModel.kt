@@ -27,53 +27,10 @@ class CartViewModel : ViewModel() {
     }
 
     private fun calculateTotal(items: List<CartItem>) {
-        _totalPrice.value = items.sumOf { it.price * it.quantity }
-    }
-
-    fun addToCart(menuId: String, name: String, canteen: String, price: Int, quantity: Int, notes: String) {
-        val currentList = _cartItems.value.toMutableList()
-        val existingIndex = currentList.indexOfFirst { it.menuId == menuId && it.notes == notes }
-
-        if (existingIndex != -1) {
-            val existingItem = currentList[existingIndex]
-            currentList[existingIndex] = existingItem.copy(quantity = existingItem.quantity + quantity)
-        } else {
-            currentList.add(
-                CartItem(
-                    id = (currentList.size + 1),
-                    menuId = menuId,
-                    menuName = name,
-                    canteenName = canteen,
-                    price = price,
-                    quantity = quantity,
-                    notes = notes
-                )
-            )
+        var total = 0
+        for (item in items) {
+            total += (item.price * item.quantity)
         }
-        _cartItems.value = currentList
-        calculateTotal(currentList)
-    }
-
-    fun removeFromCart(itemId: Int) {
-        val currentList = _cartItems.value.toMutableList()
-        currentList.removeIf { it.id == itemId }
-        _cartItems.value = currentList
-        calculateTotal(currentList)
-    }
-
-    fun updateQuantity(itemId: Int, delta: Int) {
-        val currentList = _cartItems.value.toMutableList()
-        val index = currentList.indexOfFirst { it.id == itemId }
-        if (index != -1) {
-            val newItem = currentList[index].copy(quantity = (currentList[index].quantity + delta).coerceAtLeast(1))
-            currentList[index] = newItem
-            _cartItems.value = currentList
-            calculateTotal(currentList)
-        }
-    }
-
-    fun clearCart() {
-        _cartItems.value = emptyList()
-        _totalPrice.value = 0
+        _totalPrice.value = total
     }
 }

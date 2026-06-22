@@ -208,11 +208,11 @@ fun DashboardScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            items(filteredOrders, key = { it.orderId }) { order ->
+            items(filteredOrders) { order ->
                 OrderCard(
                     order = order,
-                    onNextStepClick = { viewModel.updateOrderStatus(order.orderId) },
-                    onCancelClick = { viewModel.cancelOrder(order.orderId) }
+                    onNextStepClick = { },
+                    onCancelClick = { }
                 )
             }
 

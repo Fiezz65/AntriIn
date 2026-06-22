@@ -129,14 +129,8 @@ fun CartScreen(
                 items(cartItems) { item ->
                     CartItemCard(
                         cartItem = item,
-                        onIncreaseClick = { viewModel.updateQuantity(item.id, 1) },
-                        onDecreaseClick = { 
-                            if (item.quantity > 1) {
-                                viewModel.updateQuantity(item.id, -1)
-                            } else {
-                                viewModel.removeFromCart(item.id)
-                            }
-                        }
+                        onIncreaseClick = { },
+                        onDecreaseClick = { }
                     )
                 }
 
@@ -246,15 +240,7 @@ fun CartScreen(
                             Text(text = formatRupiah(totalPrice), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
                         }
                         Button(
-                            onClick = { 
-                                if (cartItems.isNotEmpty()) {
-                                    viewModel.clearCart()
-                                    Toast.makeText(context, "Pesanan berhasil dibuat!", Toast.LENGTH_SHORT).show()
-                                    onNavigate("tracking")
-                                } else {
-                                    Toast.makeText(context, "Keranjang masih kosong", Toast.LENGTH_SHORT).show()
-                                }
-                            },
+                            onClick = { },
                             colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
                             shape = RoundedCornerShape(8.dp)
                         ) {
