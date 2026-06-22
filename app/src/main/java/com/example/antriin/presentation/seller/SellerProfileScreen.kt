@@ -25,6 +25,8 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -45,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -65,10 +68,12 @@ import com.example.antriin.presentation.theme.TextGray
 fun SellerProfileScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
-    viewModel: SellerProfileViewModel = viewModel()
+    viewModel: SellerProfileViewModel = viewModel(),
+    notificationViewModel: SellerNotificationViewModel = viewModel()
 ) {
     val user by viewModel.sellerProfile.collectAsState()
     val qrUri by viewModel.qrCodeUri.collectAsState()
+    val notifications by notificationViewModel.notifications.collectAsState()
 
     var showEditSheet by remember { mutableStateOf(false) }
     var editCanteenName by remember { mutableStateOf("") }
@@ -178,7 +183,17 @@ fun SellerProfileScreen(
                         .clickable { onNavigate("seller_notification") },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
+                    BadgedBox(
+                        badge = {
+                            if (notifications.isNotEmpty()) {
+                                Badge(containerColor = Color.Red, contentColor = Color.White) {
+                                    Text(text = notifications.size.toString())
+                                }
+                            }
+                        }
+                    ) {
+                        Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
+                    }
                 }
             }
 

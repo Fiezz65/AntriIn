@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.antriin.presentation.auth.LoginScreen
+import com.example.antriin.presentation.auth.RegisterScreen
 import com.example.antriin.presentation.seller.DashboardScreen
 import com.example.antriin.presentation.seller.HistoryScreen
 import com.example.antriin.presentation.seller.MenuScreen
@@ -19,8 +21,43 @@ import com.example.antriin.presentation.student.StudentProfileScreen
 fun SetupNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route
+        startDestination = Screen.Login.route
     ) {
+        composable(route = Screen.Login.route) {
+            LoginScreen(
+                onNavigateToRegister = { navController.navigate(Screen.Register.route) },
+                onLoginClick = { email, password, role ->
+                    // Auth logic will be handled by AuthViewModel
+                    // For now, simple navigation based on role
+                    if (role == "Mahasiswa") {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
+                    } else {
+                        navController.navigate(Screen.Dashboard.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
+                    }
+                }
+            )
+        }
+        composable(route = Screen.Register.route) {
+            RegisterScreen(
+                onNavigateToLogin = { navController.popBackStack() },
+                onRegisterStudentClick = { fullName, studentId, email, password, phone, faculty, studyProgram ->
+                    // Handle registration logic
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                },
+                onRegisterSellerClick = { canteenName, email, password, phone, location ->
+                    // Handle registration logic
+                    navController.navigate(Screen.Dashboard.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                }
+            )
+        }
         composable(route = Screen.Home.route) {
             HomeScreen(
                 onNavigate = { route -> navController.navigate(route) },

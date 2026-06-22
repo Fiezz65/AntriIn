@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,6 +25,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -67,9 +68,11 @@ import com.example.antriin.utils.formatRupiah
 fun MenuScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
-    viewModel: MenuViewModel = viewModel()
+    viewModel: MenuViewModel = viewModel(),
+    notificationViewModel: SellerNotificationViewModel = viewModel()
 ) {
     val menus by viewModel.sellerMenus.collectAsState()
+    val notifications by notificationViewModel.notifications.collectAsState()
 
     var showMenuSheet by remember { mutableStateOf(false) }
     var menuName by remember { mutableStateOf("") }
@@ -172,7 +175,7 @@ fun MenuScreen(
                     value = menuDesc,
                     onValueChange = { menuDesc = it },
                     label = "Deskripsi Singkat",
-                    placeholder = "Contoh: Nasi goreng pedas"
+                    placeholder = "Contoh: Nasi goreng pedas dengan telur"
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 PrimaryButton(
@@ -226,7 +229,17 @@ fun MenuScreen(
                         .clickable { onNavigate("seller_notification") },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
+                    BadgedBox(
+                        badge = {
+                            if (notifications.isNotEmpty()) {
+                                Badge(containerColor = Color.Red, contentColor = Color.White) {
+                                    Text(text = notifications.size.toString())
+                                }
+                            }
+                        }
+                    ) {
+                        Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
+                    }
                 }
             }
 

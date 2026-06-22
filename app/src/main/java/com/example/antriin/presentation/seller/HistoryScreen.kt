@@ -18,6 +18,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -49,10 +51,12 @@ import com.example.antriin.utils.formatRupiah
 fun HistoryScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
-    viewModel: HistoryViewModel = viewModel()
+    viewModel: HistoryViewModel = viewModel(),
+    notificationViewModel: SellerNotificationViewModel = viewModel()
 ) {
     val historyList by viewModel.completedOrders.collectAsState()
     var selectedTab by remember { mutableStateOf("Hari Ini") }
+    val notifications by notificationViewModel.notifications.collectAsState()
 
     Scaffold(
         bottomBar = { BottomNavBar(currentRoute = "history", onNavigate = onTabNavigate, isSeller = true) }
@@ -78,7 +82,17 @@ fun HistoryScreen(
                         .clickable { onNavigate("seller_notification") },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
+                    BadgedBox(
+                        badge = {
+                            if (notifications.isNotEmpty()) {
+                                Badge(containerColor = Color.Red, contentColor = Color.White) {
+                                    Text(text = notifications.size.toString())
+                                }
+                            }
+                        }
+                    ) {
+                        Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
+                    }
                 }
             }
 
