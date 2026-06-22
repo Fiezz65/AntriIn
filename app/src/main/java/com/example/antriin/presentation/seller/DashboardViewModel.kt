@@ -66,4 +66,35 @@ class DashboardViewModel : ViewModel() {
             )
         )
     }
+
+    fun updateOrderStatus(orderId: String) {
+        val currentList = _incomingOrders.value.toMutableList()
+        val index = currentList.indexOfFirst { it.orderId == orderId }
+        if (index != -1) {
+            val currentOrder = currentList[index]
+            val nextStatus = when (currentOrder.status) {
+                "Belum Bayar", "Menunggu Validasi" -> "Diproses"
+                "Diproses" -> "Siap Diambil"
+                "Siap Diambil" -> "Selesai"
+                else -> currentOrder.status
+            }
+
+            if (nextStatus == "Selesai") {
+                currentList.removeAt(index)
+                _portionsSold.value += currentOrder.items.sumOf { it.quantity }
+            } else {
+                currentList[index] = currentOrder.copy(status = nextStatus)
+            }
+            _incomingOrders.value = currentList
+        }
+    }
+
+    fun cancelOrder(orderId: String) {
+        val currentList = _incomingOrders.value.toMutableList()
+        val index = currentList.indexOfFirst { it.orderId == orderId }
+        if (index != -1) {
+            currentList.removeAt(index)
+            _incomingOrders.value = currentList
+        }
+    }
 }

@@ -165,6 +165,14 @@ fun HomeScreen(
                 PrimaryButton(
                     text = "Tambah - ${formatRupiah(totalItemPrice)}",
                     onClick = {
+                        cartViewModel.addToCart(
+                            menuId = selectedMenuForNote!!.id,
+                            name = selectedMenuForNote!!.name,
+                            canteen = selectedMenuForNote!!.description, // Assuming description is canteen name for now
+                            price = selectedMenuForNote!!.price,
+                            quantity = quantity,
+                            notes = noteText
+                        )
                         showBottomSheet = false
                         noteText = ""
                         quantity = 1

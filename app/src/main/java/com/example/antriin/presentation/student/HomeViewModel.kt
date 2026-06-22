@@ -52,5 +52,24 @@ class HomeViewModel : ViewModel() {
 
     fun updateSelectedLocation(location: String) {
         _selectedLocation.value = location
+        filterMenusByLocation(location)
+    }
+
+    private fun filterMenusByLocation(location: String) {
+        // Simulating filtering based on location
+        // In real app, this would be a database query
+        val allMenus = listOf(
+            Menu(id = "1", name = "Nasi Goreng Spesial", description = "Warung Pak Kumis", price = 15000, category = "Nasi"),
+            Menu(id = "2", name = "Mie Ayam Bakso", description = "Mie Ayam Mas Bro", price = 12000, category = "Mie"),
+            Menu(id = "3", name = "Es Teh Manis", description = "Kedai Minum Haus", price = 4000, category = "Minuman"),
+            Menu(id = "4", name = "Sate Ayam", description = "Sate Madura", price = 20000, category = "Nasi"),
+            Menu(id = "5", name = "Batagor", description = "Batagor Bandung", price = 10000, category = "Cemilan")
+        )
+
+        _menuList.value = when {
+            location.contains("Teknik") -> allMenus.take(3)
+            location.contains("Ekonomi") -> allMenus.drop(2)
+            else -> allMenus.shuffled()
+        }
     }
 }
