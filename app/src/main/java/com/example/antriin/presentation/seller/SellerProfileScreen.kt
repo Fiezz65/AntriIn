@@ -307,7 +307,10 @@ fun SellerProfileScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Button(
-                onClick = { viewModel.logout() },
+                onClick = { 
+                    viewModel.logout() 
+                    onNavigate("login")
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),

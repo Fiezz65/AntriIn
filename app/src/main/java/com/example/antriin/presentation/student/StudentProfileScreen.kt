@@ -147,7 +147,10 @@ fun StudentProfileScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { viewModel.logout() },
+                onClick = { 
+                    viewModel.logout() 
+                    onNavigate("login")
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),

@@ -26,7 +26,7 @@ fun SetupNavGraph(navController: NavHostController) {
         composable(route = Screen.Login.route) {
             LoginScreen(
                 onNavigateToRegister = { navController.navigate(Screen.Register.route) },
-                onLoginClick = { email, password, role ->
+                onLoginSuccess = { role ->
                     if (role == "Mahasiswa") {
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Login.route) { inclusive = true }
@@ -42,14 +42,15 @@ fun SetupNavGraph(navController: NavHostController) {
         composable(route = Screen.Register.route) {
             RegisterScreen(
                 onNavigateToLogin = { navController.popBackStack() },
-                onRegisterStudentClick = { fullName, studentId, email, password, phone, faculty, studyProgram ->
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
-                    }
-                },
-                onRegisterSellerClick = { canteenName, email, password, phone, location ->
-                    navController.navigate(Screen.Dashboard.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
+                onRegisterSuccess = { role ->
+                    if (role == "Mahasiswa") {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
+                    } else {
+                        navController.navigate(Screen.Dashboard.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
                     }
                 }
             )
