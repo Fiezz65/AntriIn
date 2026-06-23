@@ -1,5 +1,6 @@
 package com.example.antriin.presentation.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,11 +25,14 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,11 +40,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.antriin.di.ViewModelFactory
 import com.example.antriin.presentation.components.CustomTextField
 import com.example.antriin.presentation.components.PasswordTextField
 import com.example.antriin.presentation.components.PrimaryButton
@@ -49,47 +56,101 @@ import com.example.antriin.presentation.theme.BackgroundLight
 import com.example.antriin.presentation.theme.PrimaryOrange
 import com.example.antriin.presentation.theme.TextBlack
 import com.example.antriin.presentation.theme.TextGray
+import com.example.antriin.utils.UiState
 
 @Composable
 fun RegisterScreen(
     onNavigateToLogin: () -> Unit,
-    onRegisterStudentClick: (String, String, String, String, String, String, String) -> Unit,
-    onRegisterSellerClick: (String, String, String, String, String) -> Unit
+    onRegisterSuccess: (String) -> Unit,
+    viewModel: AuthViewModel = viewModel(factory = ViewModelFactory.Factory)
 ) {
-    var selectedRole by remember { mutableStateOf("Mahasiswa") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
+    var selectedRole by remember {
+        mutableStateOf("Mahasiswa")
+    }
 
-    var fullName by remember { mutableStateOf("") }
-    var studentId by remember { mutableStateOf("") }
-    var faculty by remember { mutableStateOf("") }
-    var studyProgram by remember { mutableStateOf("") }
+    var email by remember {
+        mutableStateOf("")
+    }
 
-    var canteenName by remember { mutableStateOf("") }
-    var location by remember { mutableStateOf("") }
+    var password by remember {
+        mutableStateOf("")
+    }
 
-    var isLocationDropdownExpanded by remember { mutableStateOf(false) }
-    var isFacultyDropdownExpanded by remember { mutableStateOf(false) }
-    var isMajorDropdownExpanded by remember { mutableStateOf(false) }
+    var phoneNumber by remember {
+        mutableStateOf("")
+    }
+
+    var fullName by remember {
+        mutableStateOf("")
+    }
+
+    var studentId by remember {
+        mutableStateOf("")
+    }
+
+    var faculty by remember {
+        mutableStateOf("")
+    }
+
+    var studyProgram by remember {
+        mutableStateOf("")
+    }
+
+    var canteenName by remember {
+        mutableStateOf("")
+    }
+
+    var location by remember {
+        mutableStateOf("")
+    }
+
+    var isLocationDropdownExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    var secretCode by remember {
+        mutableStateOf("")
+    }
+
+    var isFacultyDropdownExpanded by remember {
+        mutableStateOf(false)
+    }
+
+    var isMajorDropdownExpanded by remember {
+        mutableStateOf(false)
+    }
 
     val campusList = listOf(
         "Fakultas Teknik (Banjarmasin)",
         "Fakultas Teknik (Banjarbaru)",
-        "Fakultas Ekonomi dan Bisnis",
-        "Fakultas Hukum",
-        "Fakultas Pertanian",
-        "Fakultas Kehutanan",
-        "Fakultas Perikanan",
-        "Fakultas Kedokteran",
-        "Fakultas Ilmu Sosial dan Ilmu Politik",
-        "Fakultas Keguruan dan Ilmu Pendidikan"
+        "Fakultas Ekonomi dan Bisnis"
     )
 
     val majorList = when (faculty) {
         "Fakultas Teknik (Banjarmasin)" -> listOf("Teknologi Informasi")
-        "Fakultas Teknik (Banjarbaru)" -> listOf("Teknik Sipil", "Teknik Mesin", "Teknik Kimia", "Teknik Lingkungan", "Rekayasa Elektro", "Rekayasa Geologi")
+        "Fakultas Teknik (Banjarbaru)" -> listOf("Teknik Sipil", "Teknik Mesin", "Teknik Kimia")
         else -> listOf("Belum ada data program studi")
+    }
+
+    val authState by viewModel.authState.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(authState) {
+        when (authState) {
+            is UiState.Success -> {
+                onRegisterSuccess(selectedRole)
+                viewModel.resetState()
+            }
+            is UiState.Error -> {
+                Toast.makeText(
+                    context,
+                    (authState as UiState.Error).message,
+                    Toast.LENGTH_LONG
+                ).show()
+                viewModel.resetState()
+            }
+            else -> {}
+        }
     }
 
     Column(
@@ -108,6 +169,7 @@ fun RegisterScreen(
             fontWeight = FontWeight.Bold,
             color = PrimaryOrange
         )
+
         Text(
             text = "Solusi antrean kantin efisien",
             fontSize = 14.sp,
@@ -117,7 +179,21 @@ fun RegisterScreen(
 
         RoleSelector(
             selectedRole = selectedRole,
-            onRoleSelected = { selectedRole = it }
+            onRoleSelected = {
+                if (selectedRole != it) {
+                    selectedRole = it
+                    email = ""
+                    password = ""
+                    phoneNumber = ""
+                    fullName = ""
+                    studentId = ""
+                    faculty = ""
+                    studyProgram = ""
+                    canteenName = ""
+                    location = ""
+                    secretCode = ""
+                }
+            }
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -250,7 +326,9 @@ fun RegisterScreen(
                 ) {
                     campusList.forEach { option ->
                         DropdownMenuItem(
-                            text = { Text(text = option, color = TextBlack) },
+                            text = {
+                                Text(text = option, color = TextBlack)
+                            },
                             onClick = {
                                 faculty = option
                                 studyProgram = ""
@@ -276,9 +354,7 @@ fun RegisterScreen(
                     modifier = Modifier
                         .matchParentSize()
                         .clickable {
-                            if (faculty.isNotEmpty()) {
-                                isMajorDropdownExpanded = true
-                            }
+                            if (faculty.isNotEmpty()) isMajorDropdownExpanded = true
                         }
                 )
                 DropdownMenu(
@@ -290,11 +366,11 @@ fun RegisterScreen(
                 ) {
                     majorList.forEach { option ->
                         DropdownMenuItem(
-                            text = { Text(text = option, color = TextBlack) },
+                            text = {
+                                Text(text = option, color = TextBlack)
+                            },
                             onClick = {
-                                if (option != "Belum ada data program studi") {
-                                    studyProgram = option
-                                }
+                                if (option != "Belum ada data program studi") studyProgram = option
                                 isMajorDropdownExpanded = false
                             },
                             modifier = Modifier.background(Color.White)
@@ -308,7 +384,7 @@ fun RegisterScreen(
                     value = location,
                     onValueChange = { },
                     label = "Lokasi Kantin",
-                    placeholder = "Pilih Lokasi Kantin",
+                    placeholder = "Pilih Lokasi Kampus",
                     leadingIcon = Icons.Default.LocationOn,
                     imeAction = ImeAction.Done
                 )
@@ -326,7 +402,9 @@ fun RegisterScreen(
                 ) {
                     campusList.forEach { option ->
                         DropdownMenuItem(
-                            text = { Text(text = option, color = TextBlack) },
+                            text = {
+                                Text(text = option, color = TextBlack)
+                            },
                             onClick = {
                                 location = option
                                 isLocationDropdownExpanded = false
@@ -336,20 +414,52 @@ fun RegisterScreen(
                     }
                 }
             }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+
+            PasswordTextField(
+                value = secretCode,
+                onValueChange = { secretCode = it },
+                label = "Kode Akses Daftar",
+                placeholder = "Masukkan kode khusus pendaftaran kantin",
+                leadingIcon = Icons.Default.Lock,
+                visibilityIcon = Icons.Default.Visibility,
+                visibilityOffIcon = Icons.Default.VisibilityOff,
+                imeAction = ImeAction.Done
+            )
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        PrimaryButton(
-            text = "DAFTAR SEKARANG",
-            onClick = {
-                if (selectedRole == "Mahasiswa") {
-                    onRegisterStudentClick(fullName, studentId, email, password, phoneNumber, faculty, studyProgram)
-                } else {
-                    onRegisterSellerClick(canteenName, email, password, phoneNumber, location)
+        if (authState is UiState.Loading) {
+            CircularProgressIndicator(color = PrimaryOrange)
+        } else {
+            PrimaryButton(
+                text = "DAFTAR SEKARANG",
+                onClick = {
+                    if (selectedRole == "Mahasiswa") {
+                        viewModel.registerStudent(
+                            fullName = fullName,
+                            studentId = studentId,
+                            email = email,
+                            pass = password,
+                            phoneNumber = phoneNumber,
+                            faculty = faculty,
+                            major = studyProgram
+                        )
+                    } else {
+                        viewModel.registerSeller(
+                            canteenName = canteenName,
+                            email = email,
+                            pass = password,
+                            phoneNumber = phoneNumber,
+                            location = location,
+                            secretCode = secretCode
+                        )
+                    }
                 }
-            }
-        )
+            )
+        }
 
         Spacer(modifier = Modifier.height(32.dp))
     }

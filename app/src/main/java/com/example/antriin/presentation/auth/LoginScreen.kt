@@ -1,5 +1,6 @@
 package com.example.antriin.presentation.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,9 +19,12 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,10 +32,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.antriin.di.ViewModelFactory
 import com.example.antriin.presentation.components.CustomTextField
 import com.example.antriin.presentation.components.PasswordTextField
 import com.example.antriin.presentation.components.PrimaryButton
@@ -40,15 +47,46 @@ import com.example.antriin.presentation.theme.BackgroundLight
 import com.example.antriin.presentation.theme.PrimaryOrange
 import com.example.antriin.presentation.theme.TextBlack
 import com.example.antriin.presentation.theme.TextGray
+import com.example.antriin.utils.UiState
 
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
-    onLoginClick: (String, String, String) -> Unit
+    onLoginSuccess: (String) -> Unit,
+    viewModel: AuthViewModel = viewModel(factory = ViewModelFactory.Factory)
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var selectedRole by remember { mutableStateOf("Mahasiswa") }
+    var email by remember {
+        mutableStateOf("")
+    }
+
+    var password by remember {
+        mutableStateOf("")
+    }
+
+    var selectedRole by remember {
+        mutableStateOf("Mahasiswa")
+    }
+
+    val authState by viewModel.authState.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(authState) {
+        when (authState) {
+            is UiState.Success -> {
+                onLoginSuccess(selectedRole)
+                viewModel.resetState()
+            }
+            is UiState.Error -> {
+                Toast.makeText(
+                    context,
+                    (authState as UiState.Error).message,
+                    Toast.LENGTH_LONG
+                ).show()
+                viewModel.resetState()
+            }
+            else -> {}
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -125,7 +163,7 @@ fun LoginScreen(
             value = email,
             onValueChange = { email = it },
             label = "Email",
-            placeholder = "contoh@mahasiswa.ac.id",
+            placeholder = "contoh@gmail.com",
             leadingIcon = Icons.Default.Email,
             keyboardType = KeyboardType.Email
         )
@@ -144,9 +182,15 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        PrimaryButton(
-            text = "MASUK",
-            onClick = { onLoginClick(email, password, selectedRole) }
-        )
+        if (authState is UiState.Loading) {
+            CircularProgressIndicator(color = PrimaryOrange)
+        } else {
+            PrimaryButton(
+                text = "MASUK",
+                onClick = {
+                    viewModel.loginUser(email, password, selectedRole)
+                }
+            )
+        }
     }
 }
