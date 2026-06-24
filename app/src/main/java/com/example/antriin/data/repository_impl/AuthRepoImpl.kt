@@ -68,4 +68,14 @@ class AuthRepoImpl(
         )
         firebaseDatabase.getReference("users").child(uid).setValue(user).await()
     }
+
+    override suspend fun checkUserRole(): String? {
+        val user = firebaseAuth.currentUser ?: return null
+        return try {
+            val snapshot = firebaseDatabase.getReference("users").child(user.uid).get().await()
+            snapshot.child("role").getValue(String::class.java)
+        } catch (e: Exception) {
+            null
+        }
+    }
 }

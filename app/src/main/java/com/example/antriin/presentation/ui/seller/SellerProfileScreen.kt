@@ -1,4 +1,15 @@
-package com.example.antriin.presentation.seller
+package com.example.antriin.presentation.ui.seller
+
+import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
+import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
+import com.example.antriin.presentation.viewmodel.seller.HistoryViewModel
+import com.example.antriin.presentation.viewmodel.seller.MenuViewModel
+import com.example.antriin.presentation.viewmodel.seller.SellerNotificationViewModel
+import com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel
+import com.example.antriin.presentation.viewmodel.student.CartViewModel
+import com.example.antriin.presentation.viewmodel.student.HomeViewModel
+import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
+import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -21,10 +32,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.QrCode
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
@@ -35,8 +46,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -77,7 +86,6 @@ fun SellerProfileScreen(
 
     var showEditSheet by remember { mutableStateOf(false) }
     var editCanteenName by remember { mutableStateOf("") }
-    var editIsOpen by remember { mutableStateOf(true) }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -98,7 +106,7 @@ fun SellerProfileScreen(
                     .fillMaxWidth()
                     .padding(24.dp)
             ) {
-                Text(text = "Edit Profil Toko", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
+                Text(text = "Edit Nama Kantin", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
                 Spacer(modifier = Modifier.height(16.dp))
 
                 CustomTextField(
@@ -108,41 +116,12 @@ fun SellerProfileScreen(
                     placeholder = "Contoh: Kantin Teknik"
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = "Status Kantin", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TextBlack)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = if (editIsOpen) "Buka" else "Tutup",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (editIsOpen) Color(0xFF4CAF50) else Color.Red
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Switch(
-                            checked = editIsOpen,
-                            onCheckedChange = { editIsOpen = it },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = Color.White,
-                                checkedTrackColor = Color(0xFF4CAF50),
-                                uncheckedThumbColor = Color.White,
-                                uncheckedTrackColor = Color.Red
-                            )
-                        )
-                    }
-                }
-
                 Spacer(modifier = Modifier.height(32.dp))
 
                 PrimaryButton(
                     text = "SIMPAN PERUBAHAN",
                     onClick = {
-                        viewModel.updateProfile(editCanteenName, editIsOpen)
+                        viewModel.updateProfile(editCanteenName, user.isOpen)
                         showEditSheet = false
                     }
                 )
@@ -220,19 +199,43 @@ fun SellerProfileScreen(
                         Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(50.dp), tint = PrimaryOrange)
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = user.canteenName, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
+                    
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = user.canteenName, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Default.Edit, 
+                            contentDescription = "Edit Nama Kantin",
+                            tint = TextGray,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clip(CircleShape)
+                                .clickable { 
+                                    editCanteenName = user.canteenName
+                                    showEditSheet = true 
+                                }
+                        )
+                    }
+                    
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(text = user.location, fontSize = 14.sp, color = TextGray)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = if (user.isOpen) "Buka" else "Tutup",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (user.isOpen) Color(0xFF4CAF50) else Color.Red,
-                        modifier = Modifier
-                            .background(if (user.isOpen) Color(0xFFE8F5E9) else Color(0xFFFFEBEE), RoundedCornerShape(16.dp))
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    )
+                    
+                    Button(
+                        onClick = { viewModel.updateProfile(user.canteenName, !user.isOpen) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (user.isOpen) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
+                            contentColor = if (user.isOpen) Color(0xFF4CAF50) else Color.Red
+                        ),
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.height(40.dp)
+                    ) {
+                        Text(
+                            text = if (user.isOpen) "Buka" else "Tutup",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             }
 
@@ -278,29 +281,6 @@ fun SellerProfileScreen(
                             contentScale = ContentScale.Fit
                         )
                     }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = {
-                    editCanteenName = user.canteenName
-                    editIsOpen = user.isOpen
-                    showEditSheet = true
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Settings, contentDescription = null, tint = TextBlack)
-                        Text(text = "Edit Profil Toko", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TextBlack, modifier = Modifier.padding(start = 16.dp))
-                    }
-                    Text(text = ">", fontSize = 18.sp, color = TextGray)
                 }
             }
 

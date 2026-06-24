@@ -1,4 +1,15 @@
-package com.example.antriin.presentation.student
+﻿package com.example.antriin.presentation.ui.student
+
+import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
+import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
+import com.example.antriin.presentation.viewmodel.seller.HistoryViewModel
+import com.example.antriin.presentation.viewmodel.seller.MenuViewModel
+import com.example.antriin.presentation.viewmodel.seller.SellerNotificationViewModel
+import com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel
+import com.example.antriin.presentation.viewmodel.student.CartViewModel
+import com.example.antriin.presentation.viewmodel.student.HomeViewModel
+import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
+import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -99,78 +110,80 @@ fun HomeScreen(
             sheetState = sheetState,
             containerColor = Color.White
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp)
-            ) {
-                Text(
-                    text = selectedMenuForNote!!.name,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextBlack
-                )
-                Text(
-                    text = formatRupiah(selectedMenuForNote!!.price),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = PrimaryOrange,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+            selectedMenuForNote?.let { menu ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp)
                 ) {
-                    Text(text = "Jumlah", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TextBlack)
+                    Text(
+                        text = menu.name,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextBlack
+                    )
+                    Text(
+                        text = formatRupiah(menu.price),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = PrimaryOrange,
+                        modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
+                    )
+
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.background(Color(0xFFFDECE2), RoundedCornerShape(20.dp))
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(
-                            onClick = { if (quantity > 1) quantity-- },
-                            modifier = Modifier.size(36.dp)
+                        Text(text = "Jumlah", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TextBlack)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.background(Color(0xFFFDECE2), RoundedCornerShape(20.dp))
                         ) {
-                            Text(text = "-", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
-                        }
-                        Text(
-                            text = quantity.toString(),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextBlack,
-                            modifier = Modifier.padding(horizontal = 12.dp)
-                        )
-                        IconButton(
-                            onClick = { quantity++ },
-                            modifier = Modifier.size(36.dp)
-                        ) {
-                            Text(text = "+", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
+                            IconButton(
+                                onClick = { if (quantity > 1) quantity-- },
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                Text(text = "-", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
+                            }
+                            Text(
+                                text = quantity.toString(),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextBlack,
+                                modifier = Modifier.padding(horizontal = 12.dp)
+                            )
+                            IconButton(
+                                onClick = { quantity++ },
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                Text(text = "+", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
+                            }
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    CustomTextField(
+                        value = noteText,
+                        onValueChange = { noteText = it },
+                        label = "Catatan Opsional",
+                        placeholder = "Contoh: Jangan pedas, karetnya 2 ya..."
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    val totalItemPrice = menu.price * quantity
+                    PrimaryButton(
+                        text = "Tambah - ${formatRupiah(totalItemPrice)}",
+                        onClick = {
+                            showBottomSheet = false
+                            noteText = ""
+                            quantity = 1
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                CustomTextField(
-                    value = noteText,
-                    onValueChange = { noteText = it },
-                    label = "Catatan Opsional",
-                    placeholder = "Contoh: Jangan pedas, karetnya 2 ya..."
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                val totalItemPrice = selectedMenuForNote!!.price * quantity
-                PrimaryButton(
-                    text = "Tambah - ${formatRupiah(totalItemPrice)}",
-                    onClick = {
-                        showBottomSheet = false
-                        noteText = ""
-                        quantity = 1
-                    }
-                )
-                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }
@@ -410,3 +423,4 @@ fun HomeScreen(
         }
     }
 }
+

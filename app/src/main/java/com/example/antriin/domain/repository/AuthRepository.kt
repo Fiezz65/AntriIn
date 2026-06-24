@@ -20,4 +20,6 @@ interface AuthRepository {
         phoneNumber: String,
         location: String
     )
+
+    suspend fun checkUserRole(): String?
 }

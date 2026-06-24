@@ -4,18 +4,18 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.antriin.presentation.auth.LoginScreen
-import com.example.antriin.presentation.auth.RegisterScreen
-import com.example.antriin.presentation.seller.DashboardScreen
-import com.example.antriin.presentation.seller.HistoryScreen
-import com.example.antriin.presentation.seller.MenuScreen
-import com.example.antriin.presentation.seller.SellerNotificationScreen
-import com.example.antriin.presentation.seller.SellerProfileScreen
-import com.example.antriin.presentation.student.CartScreen
-import com.example.antriin.presentation.student.HomeScreen
-import com.example.antriin.presentation.student.LiveTrackingScreen
-import com.example.antriin.presentation.student.StudentNotificationScreen
-import com.example.antriin.presentation.student.StudentProfileScreen
+import com.example.antriin.presentation.ui.auth.LoginScreen
+import com.example.antriin.presentation.ui.auth.RegisterScreen
+import com.example.antriin.presentation.ui.seller.DashboardScreen
+import com.example.antriin.presentation.ui.seller.HistoryScreen
+import com.example.antriin.presentation.ui.seller.MenuScreen
+import com.example.antriin.presentation.ui.seller.SellerNotificationScreen
+import com.example.antriin.presentation.ui.seller.SellerProfileScreen
+import com.example.antriin.presentation.ui.student.CartScreen
+import com.example.antriin.presentation.ui.student.HomeScreen
+import com.example.antriin.presentation.ui.student.LiveTrackingScreen
+import com.example.antriin.presentation.ui.student.StudentNotificationScreen
+import com.example.antriin.presentation.ui.student.StudentProfileScreen
 
 @Composable
 fun SetupNavGraph(navController: NavHostController, startDestination: String = Screen.Login.route) {
@@ -96,7 +96,15 @@ fun SetupNavGraph(navController: NavHostController, startDestination: String = S
         }
         composable(route = Screen.Profile.route) {
             StudentProfileScreen(
-                onNavigate = { route -> navController.navigate(route) },
+                onNavigate = { route -> 
+                    if (route == "login") {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0)
+                        }
+                    } else {
+                        navController.navigate(route) 
+                    }
+                },
                 onTabNavigate = { route ->
                     navController.navigate(route) {
                         popUpTo(Screen.Home.route) { saveState = true }
@@ -148,7 +156,15 @@ fun SetupNavGraph(navController: NavHostController, startDestination: String = S
         }
         composable(route = Screen.SellerProfile.route) {
             SellerProfileScreen(
-                onNavigate = { route -> navController.navigate(route) },
+                onNavigate = { route -> 
+                    if (route == "login") {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0)
+                        }
+                    } else {
+                        navController.navigate(route) 
+                    }
+                },
                 onTabNavigate = { route ->
                     navController.navigate(route) {
                         popUpTo(Screen.Dashboard.route) { saveState = true }

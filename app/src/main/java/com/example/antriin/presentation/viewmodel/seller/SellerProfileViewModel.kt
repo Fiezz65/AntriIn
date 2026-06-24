@@ -1,4 +1,4 @@
-package com.example.antriin.presentation.seller
+﻿package com.example.antriin.presentation.viewmodel.seller
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
