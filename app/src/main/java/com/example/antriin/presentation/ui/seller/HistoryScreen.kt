@@ -1,4 +1,4 @@
-﻿package com.example.antriin.presentation.ui.seller
+package com.example.antriin.presentation.ui.seller
 
 import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
 import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
@@ -133,8 +133,15 @@ fun HistoryScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                items(historyList) { order ->
+            if (historyList.isEmpty()) {
+                com.example.antriin.presentation.components.EmptyState(
+                    title = "Belum Ada Riwayat",
+                    message = "Belum ada pesanan yang selesai pada periode ini.",
+                    modifier = Modifier.weight(1f)
+                )
+            } else {
+                LazyColumn(modifier = Modifier.weight(1f)) {
+                    items(historyList) { order ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -155,7 +162,7 @@ fun HistoryScreen(
                                         .padding(horizontal = 8.dp, vertical = 4.dp)
                                 )
                             }
-                            Text(text = "${order.orderId} â€¢ 12:30 PM", fontSize = 12.sp, color = TextGray)
+                            Text(text = "${order.orderId} 12:30 PM", fontSize = 12.sp, color = TextGray)
 
                             Spacer(modifier = Modifier.height(12.dp))
 
@@ -193,6 +200,7 @@ fun HistoryScreen(
                     }
                 }
                 item { Spacer(modifier = Modifier.height(24.dp)) }
+            }
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿package com.example.antriin.presentation.ui.student
+package com.example.antriin.presentation.ui.student
 
 import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
 import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
@@ -67,7 +67,16 @@ fun StudentNotificationScreen(onBackClick: () -> Unit) {
         Spacer(modifier = Modifier.height(24.dp))
 
         LazyColumn {
-            items(dummyNotifications.size) { index ->
+            if (dummyNotifications.isEmpty()) {
+                item {
+                    com.example.antriin.presentation.components.EmptyState(
+                        title = "Belum Ada Notifikasi",
+                        message = "Tidak ada pemberitahuan baru saat ini.",
+                        modifier = Modifier.padding(top = 40.dp)
+                    )
+                }
+            } else {
+                items(dummyNotifications.size) { index ->
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -94,6 +103,7 @@ fun StudentNotificationScreen(onBackClick: () -> Unit) {
                     }
                 }
             }
+        }
         }
     }
 }

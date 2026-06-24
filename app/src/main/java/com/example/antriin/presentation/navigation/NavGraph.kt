@@ -99,7 +99,9 @@ fun SetupNavGraph(navController: NavHostController, startDestination: String = S
                 onNavigate = { route -> 
                     if (route == "login") {
                         navController.navigate(Screen.Login.route) {
-                            popUpTo(0)
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
                         }
                     } else {
                         navController.navigate(route) 
@@ -159,7 +161,9 @@ fun SetupNavGraph(navController: NavHostController, startDestination: String = S
                 onNavigate = { route -> 
                     if (route == "login") {
                         navController.navigate(Screen.Login.route) {
-                            popUpTo(0)
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
                         }
                     } else {
                         navController.navigate(route) 

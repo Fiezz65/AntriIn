@@ -1,4 +1,4 @@
-﻿package com.example.antriin.presentation.ui.seller
+package com.example.antriin.presentation.ui.seller
 
 import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
 import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
@@ -69,7 +69,16 @@ fun SellerNotificationScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         LazyColumn {
-            items(notificationList.size) { index ->
+            if (notificationList.isEmpty()) {
+                item {
+                    com.example.antriin.presentation.components.EmptyState(
+                        title = "Belum Ada Notifikasi",
+                        message = "Tidak ada pemberitahuan baru dari pesanan atau sistem.",
+                        modifier = Modifier.padding(top = 40.dp)
+                    )
+                }
+            } else {
+                items(notificationList.size) { index ->
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -96,6 +105,7 @@ fun SellerNotificationScreen(
                     }
                 }
             }
+        }
         }
     }
 }

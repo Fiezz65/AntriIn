@@ -1,4 +1,4 @@
-﻿package com.example.antriin.presentation.ui.student
+package com.example.antriin.presentation.ui.student
 
 import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
 import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
@@ -66,6 +66,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.antriin.presentation.components.BottomNavBar
 import com.example.antriin.presentation.components.CartItemCard
+import com.example.antriin.presentation.components.EmptyState
 import com.example.antriin.presentation.theme.BackgroundLight
 import com.example.antriin.presentation.theme.PrimaryOrange
 import com.example.antriin.presentation.theme.TextBlack
@@ -136,8 +137,15 @@ fun CartScreen(
             Text(text = "Periksa kembali pesanan Anda sebelum membayar.", fontSize = 14.sp, color = TextGray)
             Spacer(modifier = Modifier.height(16.dp))
 
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                items(cartItems) { item ->
+            if (cartItems.isEmpty()) {
+                EmptyState(
+                    title = "Keranjang Kosong",
+                    message = "Anda belum memilih menu apa pun. Ayo pesan sekarang!",
+                    modifier = Modifier.weight(1f)
+                )
+            } else {
+                LazyColumn(modifier = Modifier.weight(1f)) {
+                    items(cartItems) { item ->
                     CartItemCard(
                         cartItem = item,
                         onIncreaseClick = { },
@@ -279,6 +287,7 @@ fun CartScreen(
                         )
                     }
                 }
+            }
             }
         }
     }

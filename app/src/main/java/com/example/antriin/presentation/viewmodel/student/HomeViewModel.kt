@@ -1,14 +1,26 @@
-﻿package com.example.antriin.presentation.viewmodel.student
+package com.example.antriin.presentation.viewmodel.student
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.antriin.domain.model.Menu
 import com.example.antriin.domain.model.WeatherInfo
+import com.example.antriin.domain.repository.MenuRepository
+import com.example.antriin.domain.repository.UserRepository
+import com.example.antriin.domain.repository.WeatherRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(
+    private val menuRepository: MenuRepository,
+    private val weatherRepository: WeatherRepository,
+    private val userRepository: UserRepository
+) : ViewModel() {
 
-    private val _weatherInfo = MutableStateFlow(WeatherInfo("32°C", "Siang yang terik!"))
+    private val _weatherInfo = MutableStateFlow(WeatherInfo("-", "Memuat..."))
     val weatherInfo: StateFlow<WeatherInfo> = _weatherInfo
 
     private val _isCrowded = MutableStateFlow(true)
@@ -23,31 +35,92 @@ class HomeViewModel : ViewModel() {
     private val _selectedLocation = MutableStateFlow("")
     val selectedLocation: StateFlow<String> = _selectedLocation
 
+    private val _userName = MutableStateFlow("")
+    val userName: StateFlow<String> = _userName
+
+    private val locationCityMap = mapOf(
+        "Fakultas Teknik (Banjarmasin)" to "Banjarmasin",
+        "Fakultas Teknik (Banjarbaru)" to "Banjarbaru",
+        "Fakultas Ekonomi dan Bisnis" to "Banjarmasin",
+        "Fakultas Hukum" to "Banjarmasin",
+        "Fakultas Pertanian" to "Banjarbaru",
+        "Fakultas Kehutanan" to "Banjarbaru",
+        "Fakultas Perikanan" to "Banjarbaru"
+    )
+
     init {
-        loadDummyData()
+        fetchUserName()
+        loadLocations()
+        fetchMenus()
     }
 
-    private fun loadDummyData() {
-        val fetchedLocations = listOf(
-            "Fakultas Teknik (Banjarmasin)",
-            "Fakultas Teknik (Banjarbaru)",
-            "Fakultas Ekonomi dan Bisnis",
-            "Fakultas Hukum",
-            "Fakultas Pertanian",
-            "Fakultas Kehutanan",
-            "Fakultas Perikanan"
-        )
+    private fun fetchUserName() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            FirebaseDatabase.getInstance().getReference("users").child(uid)
+                .child("fullName")
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    _userName.value = snapshot.getValue(String::class.java) ?: "Mahasiswa"
+                }
+        }
+    }
+
+    private fun loadLocations() {
+        val fetchedLocations = listOf("Belum Dipilih") + locationCityMap.keys.toList()
         _locations.value = fetchedLocations
 
         if (fetchedLocations.isNotEmpty()) {
             _selectedLocation.value = fetchedLocations[0]
         }
+    }
 
-        _menuList.value = listOf(
-            Menu(id = "1", name = "Nasi Goreng Spesial", description = "Warung Pak Kumis", price = 15000, category = "Nasi"),
-            Menu(id = "2", name = "Mie Ayam Bakso", description = "Mie Ayam Mas Bro", price = 12000, category = "Mie"),
-            Menu(id = "3", name = "Es Teh Manis", description = "Kedai Minum Haus", price = 4000, category = "Minuman")
-        )
+    private var fetchJob: Job? = null
+
+    private fun fetchMenus() {
+        viewModelScope.launch {
+            _selectedLocation.collect { location ->
+                fetchJob?.cancel()
+                if (location.isNotEmpty() && location != "Belum Dipilih") {
+                    fetchWeather(location)
+                    fetchJob = launch {
+                        try {
+                            kotlinx.coroutines.flow.combine(
+                                userRepository.getSellersByLocation(location),
+                                menuRepository.getAllMenus()
+                            ) { sellers, menus ->
+                                val sellerMap = sellers.associateBy { it.uid }
+                                menus.filter { sellerMap.containsKey(it.sellerId) }
+                                    .map { 
+                                        val seller = sellerMap[it.sellerId]
+                                        val m = it.copy(canteenName = seller?.canteenName ?: "")
+                                        m.isCanteenOpen = seller?.isOpen ?: true
+                                        m
+                                    }
+                            }.collect { combinedMenus ->
+                                _menuList.value = combinedMenus
+                            }
+                        } catch (e: Exception) {
+                        }
+                    }
+                } else {
+                    _menuList.value = emptyList()
+                    _weatherInfo.value = WeatherInfo("-", "Pilih lokasi", "-")
+                }
+            }
+        }
+    }
+
+    private fun fetchWeather(location: String = "Fakultas Teknik (Banjarmasin)") {
+        val city = locationCityMap[location] ?: "Banjarmasin"
+        viewModelScope.launch {
+            try {
+                val info = weatherRepository.getCurrentWeather(city)
+                _weatherInfo.value = info
+            } catch (e: Exception) {
+                _weatherInfo.value = WeatherInfo("??°C", "Koneksi bermasalah", city)
+            }
+        }
     }
 
     fun updateSelectedLocation(location: String) {

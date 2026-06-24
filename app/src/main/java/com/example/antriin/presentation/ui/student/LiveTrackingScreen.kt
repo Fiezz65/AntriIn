@@ -116,8 +116,14 @@ fun LiveTrackingScreen(
                 Text(text = "Pantau pesananmu secara real-time", fontSize = 14.sp, color = TextGray)
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
+                if (queueList.isEmpty()) {
+                    com.example.antriin.presentation.components.EmptyState(
+                        title = "Belum Ada Antrean",
+                        message = "Belum ada pesanan yang sedang diproses. Silakan pesan menu terlebih dahulu."
+                    )
+                } else {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = Color(0xFFFAF2ED)),
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -146,7 +152,7 @@ fun LiveTrackingScreen(
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Diterima", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextBlack)
                             Text(text = "Diproses", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
-                            Text(text = "Selesai", fontSize = 12.sp, color = TextGray)
+                            Text(text = "Siap Diambil", fontSize = 12.sp, color = TextGray)
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Divider(color = PrimaryOrange, thickness = 4.dp)
@@ -185,6 +191,7 @@ fun LiveTrackingScreen(
                     }
                 }
                 Spacer(modifier = Modifier.height(24.dp))
+            }
             }
         }
     }

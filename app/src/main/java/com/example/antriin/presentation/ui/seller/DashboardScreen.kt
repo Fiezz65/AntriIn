@@ -1,4 +1,4 @@
-﻿package com.example.antriin.presentation.ui.seller
+package com.example.antriin.presentation.ui.seller
 
 import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
 import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
@@ -219,12 +219,22 @@ fun DashboardScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            items(filteredOrders) { order ->
-                OrderCard(
-                    order = order,
-                    onNextStepClick = { },
-                    onCancelClick = { }
-                )
+            if (filteredOrders.isEmpty()) {
+                item {
+                    com.example.antriin.presentation.components.EmptyState(
+                        title = "Belum Ada Pesanan",
+                        message = "Belum ada pesanan masuk untuk status ini.",
+                        modifier = Modifier.padding(top = 24.dp)
+                    )
+                }
+            } else {
+                items(filteredOrders) { order ->
+                    OrderCard(
+                        order = order,
+                        onNextStepClick = { },
+                        onCancelClick = { }
+                    )
+                }
             }
 
             item { Spacer(modifier = Modifier.height(24.dp)) }

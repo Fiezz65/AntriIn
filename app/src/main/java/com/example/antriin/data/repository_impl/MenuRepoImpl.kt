@@ -31,7 +31,7 @@ class MenuRepoImpl(
             }
 
             override fun onCancelled(error: DatabaseError) {
-                close(error.toException())
+                close()
             }
         }
         menusRef.addValueEventListener(listener)
@@ -54,5 +54,26 @@ class MenuRepoImpl(
         if (menuId.isNotEmpty()) {
             menusRef.child(menuId).removeValue().await()
         }
+    }
+
+    override fun getAllMenus(): Flow<List<Menu>> = callbackFlow {
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val menuList = mutableListOf<Menu>()
+                for (child in snapshot.children) {
+                    val menu = child.getValue(Menu::class.java)
+                    if (menu != null) {
+                        menuList.add(menu)
+                    }
+                }
+                trySend(menuList)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                close()
+            }
+        }
+        menusRef.addValueEventListener(listener)
+        awaitClose { menusRef.removeEventListener(listener) }
     }
 }

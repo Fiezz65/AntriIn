@@ -1,5 +1,7 @@
 package com.example.antriin.domain.model
 
+import com.google.firebase.database.PropertyName
+
 data class User(
     val uid: String = "",
     val fullName: String = "",
@@ -11,5 +13,7 @@ data class User(
     val major: String = "",
     val canteenName: String = "",
     val location: String = "",
-    val isOpen: Boolean = true
+    @get:PropertyName("isOpen")
+    @set:PropertyName("isOpen")
+    var isOpen: Boolean = true
 )

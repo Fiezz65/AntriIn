@@ -1,5 +1,6 @@
 package com.example.antriin.domain.model
 
+import com.google.firebase.database.Exclude
 import com.google.firebase.database.PropertyName
 
 data class Menu(
@@ -12,5 +13,10 @@ data class Menu(
     @get:PropertyName("isSoldOut")
     @set:PropertyName("isSoldOut")
     var isSoldOut: Boolean = false,
-    val icon: String = "🍽️"
-)
+    val icon: String = "🍽️",
+    val canteenName: String = ""
+) {
+    @get:Exclude
+    @set:Exclude
+    var isCanteenOpen: Boolean = true
+}
