@@ -18,10 +18,10 @@ import com.example.antriin.presentation.student.StudentNotificationScreen
 import com.example.antriin.presentation.student.StudentProfileScreen
 
 @Composable
-fun SetupNavGraph(navController: NavHostController) {
+fun SetupNavGraph(navController: NavHostController, startDestination: String = Screen.Login.route) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Login.route
+        startDestination = startDestination
     ) {
         composable(route = Screen.Login.route) {
             LoginScreen(
