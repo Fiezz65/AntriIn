@@ -1,5 +1,7 @@
 package com.example.antriin.domain.model
 
+import com.google.firebase.database.PropertyName
+
 data class Menu(
     val id: String = "",
     val sellerId: String = "",
@@ -7,6 +9,8 @@ data class Menu(
     val description: String = "",
     val price: Int = 0,
     val category: String = "",
-    val isSoldOut: Boolean = false,
+    @get:PropertyName("isSoldOut")
+    @set:PropertyName("isSoldOut")
+    var isSoldOut: Boolean = false,
     val icon: String = "🍽️"
 )
