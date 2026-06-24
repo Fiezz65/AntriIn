@@ -1,4 +1,4 @@
-package com.example.antriin.presentation.seller
+﻿package com.example.antriin.presentation.viewmodel.seller
 
 import androidx.lifecycle.ViewModel
 import com.example.antriin.domain.model.Order

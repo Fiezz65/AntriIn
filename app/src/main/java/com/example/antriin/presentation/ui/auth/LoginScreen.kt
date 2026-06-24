@@ -1,4 +1,15 @@
-package com.example.antriin.presentation.auth
+﻿package com.example.antriin.presentation.ui.auth
+
+import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
+import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
+import com.example.antriin.presentation.viewmodel.seller.HistoryViewModel
+import com.example.antriin.presentation.viewmodel.seller.MenuViewModel
+import com.example.antriin.presentation.viewmodel.seller.SellerNotificationViewModel
+import com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel
+import com.example.antriin.presentation.viewmodel.student.CartViewModel
+import com.example.antriin.presentation.viewmodel.student.HomeViewModel
+import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
+import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -163,7 +174,7 @@ fun LoginScreen(
             value = email,
             onValueChange = { email = it },
             label = "Email",
-            placeholder = "contoh@gmail.com",
+            placeholder = "Masukkan akun email anda",
             leadingIcon = Icons.Default.Email,
             keyboardType = KeyboardType.Email
         )
@@ -174,7 +185,7 @@ fun LoginScreen(
             value = password,
             onValueChange = { password = it },
             label = "Kata Sandi",
-            placeholder = "••••••••",
+            placeholder = "Masukkan kata sandi anda",
             leadingIcon = Icons.Default.Lock,
             visibilityIcon = Icons.Default.Visibility,
             visibilityOffIcon = Icons.Default.VisibilityOff
@@ -194,3 +205,4 @@ fun LoginScreen(
         }
     }
 }
+

@@ -1,4 +1,4 @@
-package com.example.antriin.presentation.auth
+﻿package com.example.antriin.presentation.viewmodel.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -1,4 +1,15 @@
-package com.example.antriin.presentation.seller
+﻿package com.example.antriin.presentation.ui.seller
+
+import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
+import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
+import com.example.antriin.presentation.viewmodel.seller.HistoryViewModel
+import com.example.antriin.presentation.viewmodel.seller.MenuViewModel
+import com.example.antriin.presentation.viewmodel.seller.SellerNotificationViewModel
+import com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel
+import com.example.antriin.presentation.viewmodel.student.CartViewModel
+import com.example.antriin.presentation.viewmodel.student.HomeViewModel
+import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
+import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -220,3 +231,4 @@ fun DashboardScreen(
         }
     }
 }
+

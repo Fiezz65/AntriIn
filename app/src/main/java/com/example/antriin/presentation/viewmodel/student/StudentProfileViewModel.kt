@@ -1,4 +1,4 @@
-package com.example.antriin.presentation.student
+﻿package com.example.antriin.presentation.viewmodel.student
 
 import androidx.lifecycle.ViewModel
 import com.example.antriin.domain.model.User
