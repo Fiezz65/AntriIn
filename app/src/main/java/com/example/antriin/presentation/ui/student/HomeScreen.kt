@@ -1,4 +1,4 @@
-﻿package com.example.antriin.presentation.ui.student
+package com.example.antriin.presentation.ui.student
 
 import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
 import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
@@ -49,6 +49,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -78,7 +79,7 @@ import com.example.antriin.utils.formatRupiah
 fun HomeScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
-    viewModel: HomeViewModel = viewModel(),
+    viewModel: HomeViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory),
     cartViewModel: CartViewModel = viewModel()
 ) {
     val weather by viewModel.weatherInfo.collectAsState()
@@ -86,11 +87,25 @@ fun HomeScreen(
     val menuList by viewModel.menuList.collectAsState()
     val locations by viewModel.locations.collectAsState()
     val selectedLocation by viewModel.selectedLocation.collectAsState()
+    val userName by viewModel.userName.collectAsState()
     val cartItems by cartViewModel.cartItems.collectAsState()
+    val cartTotalPrice by cartViewModel.totalPrice.collectAsState()
 
     val categories = listOf("Semua", "Nasi", "Mie", "Minuman", "Cemilan")
     var selectedCategory by remember { mutableStateOf("Semua") }
     var isDropdownExpanded by remember { mutableStateOf(false) }
+
+    val canteens = remember(menuList) {
+        listOf("Semua Kantin") + menuList.map { it.canteenName }.distinct().filter { it.isNotEmpty() }
+    }
+    var selectedCanteen by remember { mutableStateOf("Semua Kantin") }
+    var isCanteenDropdownExpanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(menuList) {
+        if (selectedCanteen != "Semua Kantin" && !menuList.any { it.canteenName == selectedCanteen }) {
+            selectedCanteen = "Semua Kantin"
+        }
+    }
 
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedMenuForNote by remember { mutableStateOf<Menu?>(null) }
@@ -177,6 +192,7 @@ fun HomeScreen(
                     PrimaryButton(
                         text = "Tambah - ${formatRupiah(totalItemPrice)}",
                         onClick = {
+                            cartViewModel.addToCart(menu, quantity, noteText)
                             showBottomSheet = false
                             noteText = ""
                             quantity = 1
@@ -190,12 +206,37 @@ fun HomeScreen(
 
     Scaffold(
         bottomBar = {
-            BottomNavBar(
-                currentRoute = "home",
-                onNavigate = onTabNavigate,
-                isSeller = false,
-                cartItemCount = cartItems.size
-            )
+            Column {
+                if (cartItems.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 12.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(PrimaryOrange)
+                            .clickable { onTabNavigate("cart") }
+                            .padding(16.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(text = "${cartItems.sumOf { it.quantity }} item", color = Color.White, fontSize = 12.sp)
+                                Text(text = "Lanjutkan Pembayaran", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            }
+                            Text(text = formatRupiah(cartTotalPrice), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        }
+                    }
+                }
+                BottomNavBar(
+                    currentRoute = "home",
+                    onNavigate = onTabNavigate,
+                    isSeller = false,
+                    cartItemCount = cartItems.size
+                )
+            }
         }
     ) { paddingValues ->
         LazyColumn(
@@ -212,12 +253,7 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "AntriIn",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = PrimaryOrange
-                    )
+                    Text(text = "AntriIn", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
                     Box(
                         modifier = Modifier
                             .size(40.dp)
@@ -241,6 +277,22 @@ fun HomeScreen(
                             )
                         }
                     }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Selamat datang, ",
+                        fontSize = 16.sp,
+                        color = TextGray
+                    )
+                    Text(
+                        text = if (userName.isNotEmpty()) userName else "Memuat...",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextBlack
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -286,7 +338,11 @@ fun HomeScreen(
                                     DropdownMenuItem(
                                         text = { Text(text = location, color = TextBlack) },
                                         onClick = {
-                                            viewModel.updateSelectedLocation(location)
+                                            if (location != selectedLocation) {
+                                                viewModel.updateSelectedLocation(location)
+                                                selectedCanteen = "Semua Kantin"
+                                                cartViewModel.clearCart()
+                                            }
                                             isDropdownExpanded = false
                                         },
                                         modifier = Modifier.background(Color.White)
@@ -299,122 +355,200 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Card(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(110.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        shape = RoundedCornerShape(12.dp)
+                if (selectedLocation != "Belum Dipilih") {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Column(
+                        Card(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp)
+                                .weight(1f)
+                                .height(100.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(12.dp)
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 16.dp, vertical = 12.dp)
                             ) {
-                                Text(text = "☀️", fontSize = 24.sp)
-                                Text(text = weather.temperature, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = if (weather.description.contains("Malam", ignoreCase = true)) "🌕" else "☀️",
+                                        fontSize = 20.sp
+                                    )
+                                    Text(text = weather.temperature, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextBlack)
+                                }
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(text = weather.city, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
+                                Text(text = weather.description, fontSize = 12.sp, color = TextGray, lineHeight = 16.sp)
                             }
-                            Spacer(modifier = Modifier.weight(1f))
-                            Text(text = weather.description, fontSize = 13.sp, color = TextGray, lineHeight = 18.sp)
                         }
-                    }
 
-                    Card(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(110.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (isCrowded) Color(0xFFFFEBEE) else Color(0xFFE8F5E9)
-                        ),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Column(
+                        Card(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp)
+                                .weight(1f)
+                                .height(100.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isCrowded) Color(0xFFFFEBEE) else Color(0xFFE8F5E9)
+                            ),
+                            shape = RoundedCornerShape(12.dp)
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 16.dp, vertical = 12.dp)
                             ) {
-                                Text(text = "👥", fontSize = 24.sp)
-                                Box(
-                                    modifier = Modifier
-                                        .size(12.dp)
-                                        .background(if (isCrowded) Color.Red else Color(0xFF4CAF50), CircleShape)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(text = "👥", fontSize = 20.sp)
+                                    Box(
+                                        modifier = Modifier
+                                            .size(10.dp)
+                                            .background(if (isCrowded) Color.Red else Color(0xFF4CAF50), CircleShape)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(
+                                    text = if (isCrowded) "Kantin Ramai" else "Kantin Tidak Ramai",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = if (isCrowded) Color.Red else Color(0xFF2E7D32),
+                                    lineHeight = 16.sp
                                 )
                             }
-                            Spacer(modifier = Modifier.weight(1f))
-                            Text(
-                                text = if (isCrowded) "Kantin Ramai" else "Kantin Tidak Ramai",
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = if (isCrowded) Color.Red else Color(0xFF2E7D32),
-                                lineHeight = 18.sp
-                            )
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                Text(
-                    text = "Lagi Pengen Apa?",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextBlack
-                )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Lagi Pengen Apa?",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextBlack
+                        )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                        Box {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color.White)
+                                    .clickable { isCanteenDropdownExpanded = true }
+                                    .padding(horizontal = 8.dp, vertical = 6.dp)
+                            ) {
+                                Text(
+                                    text = if (selectedCanteen == "Semua Kantin") "Semua Kantin" else selectedCanteen,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = PrimaryOrange
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = PrimaryOrange)
+                            }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    categories.forEach { category ->
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(20.dp))
-                                .background(if (selectedCategory == category) PrimaryOrange else Color.White)
-                                .clickable { selectedCategory = category }
-                                .padding(horizontal = 20.dp, vertical = 10.dp)
-                        ) {
-                            Text(
-                                text = category,
-                                color = if (selectedCategory == category) Color.White else TextBlack,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
+                            DropdownMenu(
+                                expanded = isCanteenDropdownExpanded,
+                                onDismissRequest = { isCanteenDropdownExpanded = false },
+                                modifier = Modifier.background(Color.White).heightIn(max = 220.dp)
+                            ) {
+                                canteens.forEach { canteen ->
+                                    DropdownMenuItem(
+                                        text = { Text(text = canteen, color = TextBlack, fontSize = 14.sp) },
+                                        onClick = {
+                                            selectedCanteen = canteen
+                                            isCanteenDropdownExpanded = false
+                                        },
+                                        modifier = Modifier.background(Color.White)
+                                    )
+                                }
+                            }
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        categories.forEach { category ->
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .background(if (selectedCategory == category) PrimaryOrange else Color.White)
+                                    .clickable { selectedCategory = category }
+                                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                            ) {
+                                Text(
+                                    text = category,
+                                    color = if (selectedCategory == category) Color.White else TextBlack,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
 
-            val filteredMenu = if (selectedCategory == "Semua") menuList else menuList.filter { it.category == selectedCategory }
+            if (selectedLocation == "Belum Dipilih") {
+                item {
+                    com.example.antriin.presentation.components.EmptyState(
+                        title = "Pilih Lokasi Dulu",
+                        message = "Silakan pilih lokasi fakultas Anda di atas untuk melihat menu.",
+                        modifier = Modifier.padding(top = 48.dp)
+                    )
+                }
+            } else {
+                val filteredMenu = menuList.filter { menu ->
+                    val matchCategory = selectedCategory == "Semua" || menu.category == selectedCategory
+                    val matchCanteen = selectedCanteen == "Semua Kantin" || menu.canteenName == selectedCanteen
+                    matchCategory && matchCanteen
+                }
 
-            items(filteredMenu) { menu ->
-                MenuCard(
-                    menu = menu,
-                    onAddClick = {
-                        selectedMenuForNote = menu
-                        quantity = 1
-                        showBottomSheet = true
+                if (filteredMenu.isEmpty()) {
+                    item {
+                        com.example.antriin.presentation.components.EmptyState(
+                            title = "Menu Tidak Ditemukan",
+                            message = "Maaf, belum ada menu yang tersedia untuk kategori atau lokasi ini.",
+                            modifier = Modifier.padding(top = 24.dp)
+                        )
                     }
-                )
+                } else {
+                    items(filteredMenu) { menu ->
+                        val cartQuantity = cartItems.find { it.menuId == menu.id }?.quantity ?: 0
+                        MenuCard(
+                            menu = menu,
+                            cartQuantity = cartQuantity,
+                            onAddClick = {
+                                selectedMenuForNote = menu
+                                quantity = 1
+                                showBottomSheet = true
+                            },
+                            onQuantityChange = { newQty ->
+                                cartViewModel.updateQuantity(menu.id, newQty)
+                            }
+                        )
+                    }
+                }
             }
 
             item {

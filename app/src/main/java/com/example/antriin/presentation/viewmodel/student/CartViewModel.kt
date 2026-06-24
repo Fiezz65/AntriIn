@@ -1,4 +1,4 @@
-﻿package com.example.antriin.presentation.viewmodel.student
+package com.example.antriin.presentation.viewmodel.student
 
 import androidx.lifecycle.ViewModel
 import com.example.antriin.domain.model.CartItem
@@ -14,16 +14,41 @@ class CartViewModel : ViewModel() {
     val totalPrice: StateFlow<Int> = _totalPrice
 
     init {
-        loadDummyCart()
     }
 
-    private fun loadDummyCart() {
-        val dummyData = listOf(
-            CartItem(id = 1, menuId = "1", menuName = "Nasi Ayam Geprek Level 5", canteenName = "Kantin Teknik Mpok", price = 18000, quantity = 1),
-            CartItem(id = 2, menuId = "3", menuName = "Es Teh Manis Jumbo", canteenName = "Kantin Teknik Mpok", price = 5000, quantity = 2)
-        )
-        _cartItems.value = dummyData
-        calculateTotal(dummyData)
+    fun addToCart(menu: com.example.antriin.domain.model.Menu, quantity: Int, notes: String) {
+        val currentItems = _cartItems.value.toMutableList()
+        val existingIndex = currentItems.indexOfFirst { it.menuId == menu.id }
+        if (existingIndex != -1) {
+            val existing = currentItems[existingIndex]
+            currentItems[existingIndex] = existing.copy(quantity = existing.quantity + quantity, notes = notes)
+        } else {
+            val newItem = CartItem(
+                menuId = menu.id,
+                menuName = menu.name,
+                canteenName = menu.canteenName,
+                price = menu.price,
+                quantity = quantity,
+                notes = notes
+            )
+            currentItems.add(newItem)
+        }
+        _cartItems.value = currentItems
+        calculateTotal(currentItems)
+    }
+
+    fun updateQuantity(menuId: String, newQty: Int) {
+        val currentItems = _cartItems.value.toMutableList()
+        val index = currentItems.indexOfFirst { it.menuId == menuId }
+        if (index != -1) {
+            if (newQty <= 0) {
+                currentItems.removeAt(index)
+            } else {
+                currentItems[index] = currentItems[index].copy(quantity = newQty)
+            }
+            _cartItems.value = currentItems
+            calculateTotal(currentItems)
+        }
     }
 
     private fun calculateTotal(items: List<CartItem>) {
@@ -32,5 +57,10 @@ class CartViewModel : ViewModel() {
             total += (item.price * item.quantity)
         }
         _totalPrice.value = total
+    }
+
+    fun clearCart() {
+        _cartItems.value = emptyList()
+        _totalPrice.value = 0
     }
 }

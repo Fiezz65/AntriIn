@@ -1,4 +1,4 @@
-﻿package com.example.antriin.presentation.viewmodel.seller
+package com.example.antriin.presentation.viewmodel.seller
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
@@ -43,13 +43,13 @@ class SellerProfileViewModel : ViewModel() {
     fun updateProfile(newName: String, isOpen: Boolean) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid != null) {
-            // Update in Realtime Database
+
             FirebaseDatabase.getInstance().getReference("users").child(uid)
                 .child("canteenName").setValue(newName)
             FirebaseDatabase.getInstance().getReference("users").child(uid)
                 .child("isOpen").setValue(isOpen)
             
-            // Update local state
+
             _sellerProfile.value = _sellerProfile.value.copy(
                 canteenName = newName,
                 isOpen = isOpen

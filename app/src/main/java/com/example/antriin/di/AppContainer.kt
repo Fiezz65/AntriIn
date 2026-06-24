@@ -11,6 +11,7 @@ import com.example.antriin.domain.repository.AuthRepository
 import com.example.antriin.domain.repository.CartRepository
 import com.example.antriin.domain.repository.MenuRepository
 import com.example.antriin.domain.repository.OrderRepository
+import com.example.antriin.domain.repository.UserRepository
 import com.example.antriin.domain.repository.WeatherRepository
 import com.example.antriin.domain.usecase.CheckUserRoleUseCase
 import com.google.firebase.auth.FirebaseAuth
@@ -22,6 +23,7 @@ interface AppContainer {
     val cartRepository: CartRepository
     val orderRepository: OrderRepository
     val weatherRepository: WeatherRepository
+    val userRepository: UserRepository
     val checkUserRoleUseCase: CheckUserRoleUseCase
 }
 
@@ -56,5 +58,9 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
 
     override val weatherRepository: WeatherRepository by lazy {
         WeatherRepoImpl()
+    }
+
+    override val userRepository: UserRepository by lazy {
+        com.example.antriin.data.repository_impl.UserRepoImpl()
     }
 }
