@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -84,7 +86,8 @@ fun HomeScreen(
 ) {
     val weather by viewModel.weatherInfo.collectAsState()
     val isCrowded by viewModel.isCrowded.collectAsState()
-    val menuList by viewModel.menuList.collectAsState()
+    val menuState by viewModel.menuList.collectAsState()
+    val menuList = menuState.menus
     val locations by viewModel.locations.collectAsState()
     val selectedLocation by viewModel.selectedLocation.collectAsState()
     val userName by viewModel.userName.collectAsState()
@@ -181,9 +184,17 @@ fun HomeScreen(
 
                     CustomTextField(
                         value = noteText,
-                        onValueChange = { noteText = it },
-                        label = "Catatan Opsional",
+                        onValueChange = { if (it.length <= 100) noteText = it },
+                        label = "Catatan Opsional (Maks. 100 Karakter)",
                         placeholder = "Contoh: Jangan pedas, karetnya 2 ya..."
+                    )
+                    Text(
+                        text = "${noteText.length}/100",
+                        fontSize = 12.sp,
+                        color = TextGray,
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .padding(top = 4.dp, end = 4.dp)
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -205,38 +216,38 @@ fun HomeScreen(
     }
 
     Scaffold(
-        bottomBar = {
-            Column {
-                if (cartItems.isNotEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 12.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(PrimaryOrange)
-                            .clickable { onTabNavigate("cart") }
-                            .padding(16.dp)
+        floatingActionButtonPosition = androidx.compose.material3.FabPosition.Center,
+        floatingActionButton = {
+            if (cartItems.isNotEmpty() && selectedLocation != "Belum Dipilih") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .clip(RoundedCornerShape(32.dp))
+                        .background(PrimaryOrange)
+                        .clickable { onTabNavigate("cart") }
+                        .padding(horizontal = 24.dp, vertical = 10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(text = "${cartItems.sumOf { it.quantity }} item", color = Color.White, fontSize = 12.sp)
-                                Text(text = "Lanjutkan Pembayaran", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                            }
-                            Text(text = formatRupiah(cartTotalPrice), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Column {
+                            Text(text = "${cartItems.sumOf { it.quantity }} item", color = Color.White, fontSize = 12.sp)
+                            Text(text = "Lanjutkan Pembayaran", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         }
+                        Text(text = formatRupiah(cartTotalPrice), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
                 }
-                BottomNavBar(
-                    currentRoute = "home",
-                    onNavigate = onTabNavigate,
-                    isSeller = false,
-                    cartItemCount = cartItems.size
-                )
             }
+        },
+        bottomBar = {
+            BottomNavBar(
+                currentRoute = "home",
+                onNavigate = onTabNavigate,
+                isSeller = false,
+                cartItemCount = cartItems.size
+            )
         }
     ) { paddingValues ->
         LazyColumn(
@@ -334,14 +345,16 @@ fun HomeScreen(
                                     .background(Color.White)
                                     .heightIn(max = 220.dp)
                             ) {
-                                locations.forEach { location ->
+                                locations.filter { it != "Belum Dipilih" || selectedLocation == "Belum Dipilih" }.forEach { location ->
                                     DropdownMenuItem(
                                         text = { Text(text = location, color = TextBlack) },
                                         onClick = {
                                             if (location != selectedLocation) {
+                                                if (selectedLocation != "Belum Dipilih") {
+                                                    cartViewModel.clearCart()
+                                                }
                                                 viewModel.updateSelectedLocation(location)
                                                 selectedCanteen = "Semua Kantin"
-                                                cartViewModel.clearCart()
                                             }
                                             isDropdownExpanded = false
                                         },
@@ -357,20 +370,23 @@ fun HomeScreen(
 
                 if (selectedLocation != "Belum Dipilih") {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Max),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Card(
                             modifier = Modifier
                                 .weight(1f)
-                                .height(100.dp),
+                                .fillMaxHeight(),
                             colors = CardDefaults.cardColors(containerColor = Color.White),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -378,21 +394,30 @@ fun HomeScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = if (weather.description.contains("Malam", ignoreCase = true)) "🌕" else "☀️",
+                                        text = weather.emoji,
                                         fontSize = 20.sp
                                     )
                                     Text(text = weather.temperature, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextBlack)
                                 }
-                                Spacer(modifier = Modifier.weight(1f))
-                                Text(text = weather.city, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
-                                Text(text = weather.description, fontSize = 12.sp, color = TextGray, lineHeight = 16.sp)
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Column {
+                                    Text(text = weather.city, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
+                                    Text(
+                                        text = weather.description,
+                                        fontSize = 11.sp,
+                                        color = TextGray,
+                                        lineHeight = 14.sp,
+                                        maxLines = 2,
+                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                    )
+                                }
                             }
                         }
 
                         Card(
                             modifier = Modifier
                                 .weight(1f)
-                                .height(100.dp),
+                                .fillMaxHeight(),
                             colors = CardDefaults.cardColors(
                                 containerColor = if (isCrowded) Color(0xFFFFEBEE) else Color(0xFFE8F5E9)
                             ),
@@ -401,7 +426,8 @@ fun HomeScreen(
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -415,7 +441,7 @@ fun HomeScreen(
                                             .background(if (isCrowded) Color.Red else Color(0xFF4CAF50), CircleShape)
                                     )
                                 }
-                                Spacer(modifier = Modifier.weight(1f))
+                                Spacer(modifier = Modifier.height(8.dp))
                                 Text(
                                     text = if (isCrowded) "Kantin Ramai" else "Kantin Tidak Ramai",
                                     fontSize = 12.sp,
@@ -534,13 +560,17 @@ fun HomeScreen(
                     }
                 } else {
                     items(filteredMenu) { menu ->
-                        val cartQuantity = cartItems.find { it.menuId == menu.id }?.quantity ?: 0
+                        val cartItem = cartItems.find { it.menuId == menu.id }
+                        val cartQuantity = cartItem?.quantity ?: 0
+                        val cartNotes = cartItem?.notes ?: ""
+                        
                         MenuCard(
                             menu = menu,
                             cartQuantity = cartQuantity,
                             onAddClick = {
                                 selectedMenuForNote = menu
                                 quantity = 1
+                                noteText = ""
                                 showBottomSheet = true
                             },
                             onQuantityChange = { newQty ->
@@ -552,7 +582,7 @@ fun HomeScreen(
             }
 
             item {
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(if (cartItems.isNotEmpty()) 100.dp else 24.dp))
             }
         }
     }

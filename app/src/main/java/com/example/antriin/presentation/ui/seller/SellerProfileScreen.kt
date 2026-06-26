@@ -77,7 +77,7 @@ import com.example.antriin.presentation.theme.TextGray
 fun SellerProfileScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
-    viewModel: SellerProfileViewModel = viewModel(),
+    viewModel: SellerProfileViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory),
     notificationViewModel: SellerNotificationViewModel = viewModel()
 ) {
     val user by viewModel.sellerProfile.collectAsState()

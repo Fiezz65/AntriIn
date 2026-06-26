@@ -18,7 +18,8 @@ object ViewModelFactory {
         initializer {
             val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AntriInApplication)
             com.example.antriin.presentation.viewmodel.auth.MainViewModel(
-                checkUserRoleUseCase = application.container.checkUserRoleUseCase
+                checkUserRoleUseCase = application.container.checkUserRoleUseCase,
+                cartRepository = application.container.cartRepository
             )
         }
         initializer {
@@ -38,6 +39,19 @@ object ViewModelFactory {
         initializer {
             val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AntriInApplication)
             CartViewModel(
+                cartRepository = application.container.cartRepository,
+                menuRepository = application.container.menuRepository
+            )
+        }
+        initializer {
+            val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AntriInApplication)
+            com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel(
+                cartRepository = application.container.cartRepository
+            )
+        }
+        initializer {
+            val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AntriInApplication)
+            com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel(
                 cartRepository = application.container.cartRepository
             )
         }

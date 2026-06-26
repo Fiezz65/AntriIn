@@ -123,7 +123,7 @@ fun MenuCard(
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
-                    } else if (!menu.isSoldOut) {
+                    } else if (!menu.soldOut) {
                         if (cartQuantity > 0) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,

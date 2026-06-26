@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+import com.example.antriin.presentation.viewmodel.seller.MenuState
+
 class HomeViewModel(
     private val menuRepository: MenuRepository,
     private val weatherRepository: WeatherRepository,
@@ -26,8 +28,8 @@ class HomeViewModel(
     private val _isCrowded = MutableStateFlow(true)
     val isCrowded: StateFlow<Boolean> = _isCrowded
 
-    private val _menuList = MutableStateFlow<List<Menu>>(emptyList())
-    val menuList: StateFlow<List<Menu>> = _menuList
+    private val _menuList = MutableStateFlow(MenuState())
+    val menuList: StateFlow<MenuState> = _menuList
 
     private val _locations = MutableStateFlow<List<String>>(emptyList())
     val locations: StateFlow<List<String>> = _locations
@@ -49,19 +51,22 @@ class HomeViewModel(
     )
 
     init {
-        fetchUserName()
+        fetchUserData()
         loadLocations()
         fetchMenus()
     }
 
-    private fun fetchUserName() {
+    private fun fetchUserData() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid != null) {
             FirebaseDatabase.getInstance().getReference("users").child(uid)
-                .child("fullName")
                 .get()
                 .addOnSuccessListener { snapshot ->
-                    _userName.value = snapshot.getValue(String::class.java) ?: "Mahasiswa"
+                    _userName.value = snapshot.child("fullName").getValue(String::class.java) ?: "Mahasiswa"
+                    val faculty = snapshot.child("faculty").getValue(String::class.java)
+                    if (!faculty.isNullOrEmpty() && locationCityMap.containsKey(faculty)) {
+                        _selectedLocation.value = faculty
+                    }
                 }
         }
     }
@@ -98,13 +103,13 @@ class HomeViewModel(
                                         m
                                     }
                             }.collect { combinedMenus ->
-                                _menuList.value = combinedMenus
+                                _menuList.value = MenuState(combinedMenus, System.currentTimeMillis())
                             }
                         } catch (e: Exception) {
                         }
                     }
                 } else {
-                    _menuList.value = emptyList()
+                    _menuList.value = MenuState()
                     _weatherInfo.value = WeatherInfo("-", "Pilih lokasi", "-")
                 }
             }

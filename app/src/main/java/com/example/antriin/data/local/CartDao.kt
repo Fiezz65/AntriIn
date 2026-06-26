@@ -27,8 +27,10 @@ interface CartDao {
     suspend fun deleteAll(): Int
 
     @Query("SELECT * FROM cart_table WHERE menuId = :menuId LIMIT 1")
+    @JvmSuppressWildcards
     suspend fun getCartItemByMenuId(menuId: String): CartItem?
 
     @androidx.room.Update
+    @JvmSuppressWildcards
     suspend fun updateCartItem(item: CartItem): Int
 }
