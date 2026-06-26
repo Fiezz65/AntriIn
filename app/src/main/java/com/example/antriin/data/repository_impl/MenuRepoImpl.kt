@@ -24,7 +24,8 @@ class MenuRepoImpl(
                 for (child in snapshot.children) {
                     val menu = child.getValue(Menu::class.java)
                     if (menu != null && menu.sellerId == sellerId) {
-                        menuList.add(menu)
+                        val menuWithId = menu.copy(id = child.key ?: menu.id)
+                        menuList.add(menuWithId)
                     }
                 }
                 trySend(menuList)
@@ -63,7 +64,8 @@ class MenuRepoImpl(
                 for (child in snapshot.children) {
                     val menu = child.getValue(Menu::class.java)
                     if (menu != null) {
-                        menuList.add(menu)
+                        val menuWithId = menu.copy(id = child.key ?: menu.id)
+                        menuList.add(menuWithId)
                     }
                 }
                 trySend(menuList)

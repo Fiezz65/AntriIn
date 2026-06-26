@@ -1,4 +1,4 @@
-﻿package com.example.antriin.presentation.ui.seller
+package com.example.antriin.presentation.ui.seller
 
 import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
 import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
@@ -93,7 +93,8 @@ fun MenuScreen(
     viewModel: MenuViewModel = viewModel(factory = ViewModelFactory.Factory),
     notificationViewModel: SellerNotificationViewModel = viewModel()
 ) {
-    val menus by viewModel.sellerMenus.collectAsState()
+    val menuState by viewModel.sellerMenus.collectAsState()
+    val menus = menuState.menus
     val notifications by notificationViewModel.notifications.collectAsState()
     val context = androidx.compose.ui.platform.LocalContext.current
 
@@ -104,7 +105,7 @@ fun MenuScreen(
     var menuDesc by remember { mutableStateOf("") }
     var menuCategory by remember { mutableStateOf("") }
     var menuIcon by remember { mutableStateOf("🍽️") }
-    var isSoldOut by remember { mutableStateOf(false) }
+    var soldOut by remember { mutableStateOf(false) }
     var menuToDelete by remember { mutableStateOf<Menu?>(null) }
 
     val iconOptions = listOf("🍽️", "🍚", "🍜", "🍲", "🍔", "🍟", "🍕", "🍹", "☕", "🍰")
@@ -220,9 +221,17 @@ fun MenuScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 CustomTextField(
                     value = menuDesc,
-                    onValueChange = { menuDesc = it },
-                    label = "Deskripsi Singkat",
+                    onValueChange = { if (it.length <= 100) menuDesc = it },
+                    label = "Deskripsi Singkat (Maks. 100 Karakter)",
                     placeholder = "Contoh: Nasi goreng pedas dengan telur"
+                )
+                Text(
+                    text = "${menuDesc.length}/100",
+                    fontSize = 12.sp,
+                    color = TextGray,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(top = 4.dp, end = 4.dp)
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 PrimaryButton(
@@ -235,7 +244,7 @@ fun MenuScreen(
                             category = menuCategory,
                             description = menuDesc,
                             icon = menuIcon,
-                            isSoldOut = isSoldOut
+                            soldOut = soldOut
                         )
                         if (editMenuId.isEmpty()) {
                             viewModel.addMenu(menu) {
@@ -291,7 +300,7 @@ fun MenuScreen(
                     menuDesc = ""
                     menuCategory = ""
                     menuIcon = "ðŸ½ï¸"
-                    isSoldOut = false
+                    soldOut = false
                     showMenuSheet = true
                 },
                 containerColor = PrimaryOrange,
@@ -386,7 +395,7 @@ fun MenuScreen(
                                             menuDesc = menu.description
                                             menuCategory = menu.category
                                             menuIcon = menu.icon
-                                            isSoldOut = menu.isSoldOut
+                                            soldOut = menu.soldOut
                                             showMenuSheet = true
                                         }) { Icon(Icons.Default.Edit, contentDescription = null, tint = TextGray) }
                                         IconButton(onClick = { 
@@ -395,9 +404,9 @@ fun MenuScreen(
                                     }
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Switch(
-                                            checked = menu.isSoldOut,
-                                            onCheckedChange = { isSoldOut ->
-                                                viewModel.updateMenu(menu.copy(isSoldOut = isSoldOut))
+                                            checked = menu.soldOut,
+                                            onCheckedChange = { newSoldOut ->
+                                                viewModel.updateMenu(menu.copy(soldOut = newSoldOut))
                                             },
                                             colors = SwitchDefaults.colors(
                                                 checkedThumbColor = Color.White,
@@ -407,7 +416,7 @@ fun MenuScreen(
                                             ),
                                             modifier = Modifier.scale(0.7f).height(24.dp)
                                         )
-                                        Text(text = if (menu.isSoldOut) "Habis" else "Tersedia", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = if (menu.isSoldOut) Color.Red else Color(0xFF4CAF50), modifier = Modifier.padding(top = 4.dp))
+                                        Text(text = if (menu.soldOut) "Habis" else "Tersedia", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = if (menu.soldOut) Color.Red else Color(0xFF4CAF50), modifier = Modifier.padding(top = 4.dp))
                                     }
                                 }
                             }

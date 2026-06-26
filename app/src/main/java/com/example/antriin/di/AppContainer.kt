@@ -49,7 +49,7 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
     }
 
     override val cartRepository: CartRepository by lazy {
-        CartRepoImpl()
+        CartRepoImpl(cartDao = appDatabase.cartDao())
     }
 
     override val orderRepository: OrderRepository by lazy {

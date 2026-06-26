@@ -1,4 +1,4 @@
-﻿package com.example.antriin.presentation.ui.student
+package com.example.antriin.presentation.ui.student
 
 import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
 import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
@@ -59,8 +59,8 @@ import com.example.antriin.presentation.theme.TextGray
 fun StudentProfileScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
-    viewModel: StudentProfileViewModel = viewModel(),
-    cartViewModel: CartViewModel = viewModel()
+    viewModel: StudentProfileViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory),
+    cartViewModel: CartViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val user by viewModel.userProfile.collectAsState()
     val cartItems by cartViewModel.cartItems.collectAsState()
@@ -157,10 +157,11 @@ fun StudentProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Button(
+                Button(
                 onClick = { 
-                    viewModel.logout() 
-                    onNavigate("login")
+                    viewModel.logout {
+                        onNavigate("login")
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()

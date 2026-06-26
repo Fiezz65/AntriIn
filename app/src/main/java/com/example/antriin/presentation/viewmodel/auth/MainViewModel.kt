@@ -9,13 +9,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val checkUserRoleUseCase: CheckUserRoleUseCase
+    private val checkUserRoleUseCase: CheckUserRoleUseCase,
+    private val cartRepository: com.example.antriin.domain.repository.CartRepository
 ) : ViewModel() {
 
     private val _startDestination = MutableStateFlow<String?>(null)
     val startDestination: StateFlow<String?> = _startDestination
 
     init {
+        viewModelScope.launch {
+            cartRepository.clearCart()
+        }
         checkDestination()
     }
 

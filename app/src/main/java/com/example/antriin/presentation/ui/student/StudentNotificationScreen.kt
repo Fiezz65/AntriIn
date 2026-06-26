@@ -31,6 +31,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,13 +44,15 @@ import com.example.antriin.presentation.theme.PrimaryOrange
 import com.example.antriin.presentation.theme.TextBlack
 import com.example.antriin.presentation.theme.TextGray
 
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.antriin.presentation.viewmodel.student.StudentNotificationViewModel
+
 @Composable
-fun StudentNotificationScreen(onBackClick: () -> Unit) {
-    val dummyNotifications = listOf(
-        "Pesanan #ANT-092 kamu sudah siap diambil di Kasir!",
-        "Hore! Pesanan Nasi Gorengmu sedang diproses oleh penjual.",
-        "Pesanan #ANT-088 kamu telah selesai. Selamat menikmati!"
-    )
+fun StudentNotificationScreen(
+    onBackClick: () -> Unit,
+    viewModel: StudentNotificationViewModel = viewModel()
+) {
+    val notifications by viewModel.notifications.collectAsState()
 
     Column(
         modifier = Modifier
@@ -67,7 +71,7 @@ fun StudentNotificationScreen(onBackClick: () -> Unit) {
         Spacer(modifier = Modifier.height(24.dp))
 
         LazyColumn {
-            if (dummyNotifications.isEmpty()) {
+            if (notifications.isEmpty()) {
                 item {
                     com.example.antriin.presentation.components.EmptyState(
                         title = "Belum Ada Notifikasi",
@@ -76,7 +80,7 @@ fun StudentNotificationScreen(onBackClick: () -> Unit) {
                     )
                 }
             } else {
-                items(dummyNotifications.size) { index ->
+                items(notifications.size) { index ->
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -94,7 +98,7 @@ fun StudentNotificationScreen(onBackClick: () -> Unit) {
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = dummyNotifications[index],
+                                text = notifications[index],
                                 fontSize = 12.sp,
                                 color = TextGray,
                                 lineHeight = 18.sp

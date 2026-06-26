@@ -1,4 +1,4 @@
-﻿package com.example.antriin.presentation.viewmodel.student
+package com.example.antriin.presentation.viewmodel.student
 
 import androidx.lifecycle.ViewModel
 import com.example.antriin.domain.model.User
@@ -7,7 +7,11 @@ import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class StudentProfileViewModel : ViewModel() {
+import com.example.antriin.domain.repository.CartRepository
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+
+class StudentProfileViewModel(private val cartRepository: CartRepository) : ViewModel() {
 
     private val _userProfile = MutableStateFlow(User())
     val userProfile: StateFlow<User> = _userProfile
@@ -30,7 +34,15 @@ class StudentProfileViewModel : ViewModel() {
         }
     }
 
-    fun logout() {
-        FirebaseAuth.getInstance().signOut()
+    fun logout(onComplete: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                cartRepository.clearCart()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            FirebaseAuth.getInstance().signOut()
+            onComplete()
+        }
     }
 }

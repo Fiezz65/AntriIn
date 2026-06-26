@@ -1,11 +1,22 @@
 package com.example.antriin.presentation.viewmodel.student
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.antriin.domain.model.CartItem
+import com.example.antriin.domain.model.Menu
+import com.example.antriin.domain.repository.CartRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
-class CartViewModel : ViewModel() {
+import com.example.antriin.domain.repository.MenuRepository
+import kotlinx.coroutines.flow.combine
+
+class CartViewModel(
+    private val cartRepository: CartRepository,
+    private val menuRepository: MenuRepository
+) : ViewModel() {
 
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems
@@ -14,40 +25,40 @@ class CartViewModel : ViewModel() {
     val totalPrice: StateFlow<Int> = _totalPrice
 
     init {
+        viewModelScope.launch {
+            combine(
+                cartRepository.getAllCartItems(),
+                menuRepository.getAllMenus()
+            ) { cart, menus ->
+                Pair(cart, menus)
+            }.collectLatest { (cart, menus) ->
+                // Check if any cart item is now sold out or removed from firebase
+                val validCartItems = mutableListOf<CartItem>()
+                for (item in cart) {
+                    val firebaseMenu = menus.find { it.id == item.menuId }
+                    if (firebaseMenu == null || firebaseMenu.soldOut) {
+                        // Automatically remove from cart if sold out or deleted in firebase
+                        cartRepository.updateQuantity(item.menuId, 0)
+                    } else {
+                        validCartItems.add(item)
+                    }
+                }
+                
+                _cartItems.value = validCartItems
+                calculateTotal(validCartItems)
+            }
+        }
     }
 
-    fun addToCart(menu: com.example.antriin.domain.model.Menu, quantity: Int, notes: String) {
-        val currentItems = _cartItems.value.toMutableList()
-        val existingIndex = currentItems.indexOfFirst { it.menuId == menu.id }
-        if (existingIndex != -1) {
-            val existing = currentItems[existingIndex]
-            currentItems[existingIndex] = existing.copy(quantity = existing.quantity + quantity, notes = notes)
-        } else {
-            val newItem = CartItem(
-                menuId = menu.id,
-                menuName = menu.name,
-                canteenName = menu.canteenName,
-                price = menu.price,
-                quantity = quantity,
-                notes = notes
-            )
-            currentItems.add(newItem)
+    fun addToCart(menu: Menu, quantity: Int, notes: String) {
+        viewModelScope.launch {
+            cartRepository.addToCart(menu, quantity, notes)
         }
-        _cartItems.value = currentItems
-        calculateTotal(currentItems)
     }
 
     fun updateQuantity(menuId: String, newQty: Int) {
-        val currentItems = _cartItems.value.toMutableList()
-        val index = currentItems.indexOfFirst { it.menuId == menuId }
-        if (index != -1) {
-            if (newQty <= 0) {
-                currentItems.removeAt(index)
-            } else {
-                currentItems[index] = currentItems[index].copy(quantity = newQty)
-            }
-            _cartItems.value = currentItems
-            calculateTotal(currentItems)
+        viewModelScope.launch {
+            cartRepository.updateQuantity(menuId, newQty)
         }
     }
 
@@ -60,7 +71,8 @@ class CartViewModel : ViewModel() {
     }
 
     fun clearCart() {
-        _cartItems.value = emptyList()
-        _totalPrice.value = 0
+        viewModelScope.launch {
+            cartRepository.clearCart()
+        }
     }
 }

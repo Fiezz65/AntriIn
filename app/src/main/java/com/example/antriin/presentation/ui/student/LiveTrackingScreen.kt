@@ -1,4 +1,4 @@
-﻿package com.example.antriin.presentation.ui.student
+package com.example.antriin.presentation.ui.student
 
 import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
 import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
@@ -59,7 +59,7 @@ fun LiveTrackingScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
     viewModel: LiveTrackingViewModel = viewModel(),
-    cartViewModel: CartViewModel = viewModel()
+    cartViewModel: CartViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val queueList by viewModel.queueList.collectAsState()
     val cartItems by cartViewModel.cartItems.collectAsState()
@@ -176,7 +176,7 @@ fun LiveTrackingScreen(
                             Text(
                                 text = "Total: ${queueList.size}",
                                 fontSize = 12.sp,
-                                color = TextBlack,
+                                color =  TextBlack,
                                 modifier = Modifier.background(Color(0xFFFDECE2), RoundedCornerShape(4.dp)).padding(horizontal = 8.dp, vertical = 4.dp)
                             )
                         }

@@ -10,9 +10,7 @@ data class Menu(
     val description: String = "",
     val price: Int = 0,
     val category: String = "",
-    @get:PropertyName("isSoldOut")
-    @set:PropertyName("isSoldOut")
-    var isSoldOut: Boolean = false,
+    var soldOut: Boolean = false,
     val icon: String = "🍽️",
     val canteenName: String = ""
 ) {

@@ -8,7 +8,11 @@ import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class SellerProfileViewModel : ViewModel() {
+import com.example.antriin.domain.repository.CartRepository
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+
+class SellerProfileViewModel(private val cartRepository: CartRepository) : ViewModel() {
 
     private val _sellerProfile = MutableStateFlow(User())
     val sellerProfile: StateFlow<User> = _sellerProfile
@@ -58,6 +62,9 @@ class SellerProfileViewModel : ViewModel() {
     }
 
     fun logout() {
+        viewModelScope.launch {
+            cartRepository.clearCart()
+        }
         FirebaseAuth.getInstance().signOut()
     }
 }

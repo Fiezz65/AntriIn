@@ -1,4 +1,4 @@
-﻿package com.example.antriin.presentation.viewmodel.seller
+package com.example.antriin.presentation.viewmodel.seller
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,12 +9,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+data class MenuState(
+    val menus: List<Menu> = emptyList(),
+    val lastUpdated: Long = 0L
+)
+
 class MenuViewModel(
     private val menuRepository: MenuRepository
 ) : ViewModel() {
 
-    private val _sellerMenus = MutableStateFlow<List<Menu>>(emptyList())
-    val sellerMenus: StateFlow<List<Menu>> = _sellerMenus
+    private val _sellerMenus = MutableStateFlow(MenuState())
+    val sellerMenus: StateFlow<MenuState> = _sellerMenus
 
     init {
         loadMenus()
@@ -23,8 +28,12 @@ class MenuViewModel(
     private fun loadMenus() {
         val sellerId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         viewModelScope.launch {
-            menuRepository.getMenus(sellerId).collect { menus ->
-                _sellerMenus.value = menus
+            try {
+                menuRepository.getMenus(sellerId).collect { menus ->
+                    _sellerMenus.value = MenuState(menus, System.currentTimeMillis())
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -33,8 +42,12 @@ class MenuViewModel(
         val sellerId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val newMenu = menu.copy(sellerId = sellerId)
         viewModelScope.launch {
-            menuRepository.addMenu(newMenu)
-            onSuccess()
+            try {
+                menuRepository.addMenu(newMenu)
+                onSuccess()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -42,8 +55,12 @@ class MenuViewModel(
         val sellerId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val updatedMenu = menu.copy(sellerId = sellerId)
         viewModelScope.launch {
-            menuRepository.updateMenu(updatedMenu)
-            onSuccess()
+            try {
+                menuRepository.updateMenu(updatedMenu)
+                onSuccess()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 

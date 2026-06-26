@@ -77,7 +77,7 @@ import com.example.antriin.utils.formatRupiah
 fun CartScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
-    viewModel: CartViewModel = viewModel()
+    viewModel: CartViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val cartItems by viewModel.cartItems.collectAsState()
     val totalPrice by viewModel.totalPrice.collectAsState()
@@ -89,12 +89,40 @@ fun CartScreen(
 
     Scaffold(
         bottomBar = {
-            BottomNavBar(
-                currentRoute = "cart",
-                onNavigate = onTabNavigate,
-                isSeller = false,
-                cartItemCount = cartItems.size
-            )
+            Column {
+                if (cartItems.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.White)
+                            .padding(horizontal = 24.dp, vertical = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(text = "Total Pembayaran • $paymentMethod", fontSize = 12.sp, color = TextGray)
+                            Text(text = formatRupiah(totalPrice), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
+                        }
+                        Button(
+                            onClick = { },
+                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(text = "Pesan", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
+                            }
+                        }
+                    }
+                }
+                BottomNavBar(
+                    currentRoute = "cart",
+                    onNavigate = onTabNavigate,
+                    isSeller = false,
+                    cartItemCount = cartItems.size
+                )
+            }
         }
     ) { paddingValues ->
         Column(
@@ -144,13 +172,15 @@ fun CartScreen(
                     modifier = Modifier.weight(1f)
                 )
             } else {
-                LazyColumn(modifier = Modifier.weight(1f)) {
+                LazyColumn(
+                    modifier = Modifier.weight(1f)
+                ) {
                     items(cartItems) { item ->
-                    CartItemCard(
-                        cartItem = item,
-                        onIncreaseClick = { },
-                        onDecreaseClick = { }
-                    )
+                        CartItemCard(
+                            cartItem = item,
+                            onIncreaseClick = { viewModel.updateQuantity(item.menuId, item.quantity + 1) },
+                            onDecreaseClick = { viewModel.updateQuantity(item.menuId, item.quantity - 1) }
+                        )
                 }
 
                 item {
@@ -242,52 +272,7 @@ fun CartScreen(
                 }
             }
 
-            Card(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                shape = RoundedCornerShape(12.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(text = "Total Pembayaran (${cartItems.size} Item)", fontSize = 12.sp, color = TextGray)
-                            Text(text = formatRupiah(totalPrice), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
-                        }
-                        Button(
-                            onClick = { },
-                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(text = "Pesan", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFFDECE2), RoundedCornerShape(8.dp))
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(Icons.Default.Info, contentDescription = null, tint = PrimaryOrange, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = if (paymentMethod == "Tunai") "Konfirmasi pembayaran di kasir untuk memproses pesanan." else "Mohon tunggu penjual memvalidasi pesanan Anda setelah transfer.",
-                            fontSize = 12.sp,
-                            color = TextBlack
-                        )
-                    }
-                }
-            }
+
             }
         }
     }

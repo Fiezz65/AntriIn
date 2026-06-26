@@ -1,6 +1,7 @@
 package com.example.antriin.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,7 +49,7 @@ fun CartItemCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Box(
                 modifier = Modifier
@@ -69,44 +70,60 @@ fun CartItemCard(
                     fontWeight = FontWeight.SemiBold,
                     color = TextBlack
                 )
-                Text(
-                    text = cartItem.canteenName,
-                    fontSize = 12.sp,
-                    color = TextGray
-                )
+                Box(
+                    modifier = Modifier
+                        .padding(vertical = 4.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Color(0xFFFDECE2))
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = cartItem.canteenName,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = PrimaryOrange
+                    )
+                }
                 if (cartItem.notes.isNotEmpty()) {
                     Text(
                         text = "Catatan: ${cartItem.notes}",
                         fontSize = 12.sp,
-                        fontStyle = FontStyle.Italic,
-                        color = PrimaryOrange
+                        color = TextGray,
+                        modifier = Modifier.padding(bottom = 4.dp)
                     )
                 }
-                Text(
-                    text = formatRupiah(cartItem.price),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = PrimaryOrange,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .background(Color.White, RoundedCornerShape(20.dp))
-            ) {
-                IconButton(onClick = onDecreaseClick, modifier = Modifier.size(32.dp)) {
-                    Text(text = "-", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
-                }
-                Text(
-                    text = cartItem.quantity.toString(),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-                IconButton(onClick = onIncreaseClick, modifier = Modifier.size(32.dp)) {
-                    Text(text = "+", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = formatRupiah(cartItem.price),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = PrimaryOrange
+                    )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.background(Color(0xFFFDECE2), RoundedCornerShape(20.dp))
+                    ) {
+                        IconButton(onClick = onDecreaseClick, modifier = Modifier.size(32.dp)) {
+                            Text(text = "-", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
+                        }
+                        Text(
+                            text = cartItem.quantity.toString(),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        )
+                        IconButton(onClick = onIncreaseClick, modifier = Modifier.size(32.dp)) {
+                            Text(text = "+", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
+                        }
+                    }
                 }
             }
         }
