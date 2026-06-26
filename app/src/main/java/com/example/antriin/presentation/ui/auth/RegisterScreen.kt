@@ -1,4 +1,4 @@
-﻿package com.example.antriin.presentation.ui.auth
+package com.example.antriin.presentation.ui.auth
 
 import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
 import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
@@ -269,14 +269,22 @@ fun RegisterScreen(
         } else {
             CustomTextField(
                 value = canteenName,
-                onValueChange = { canteenName = it },
+                onValueChange = { if (it.length <= 25) canteenName = it },
                 label = "Nama Kantin",
                 placeholder = "Masukkan nama kantin",
-                leadingIcon = Icons.Default.Home
+                leadingIcon = Icons.Default.Home,
+                supportingText = {
+                    Text(
+                        text = "${canteenName.length}/25",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.End,
+                        color = TextGray
+                    )
+                }
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(if (selectedRole == "Mahasiswa") 16.dp else 4.dp))
 
         CustomTextField(
             value = email,

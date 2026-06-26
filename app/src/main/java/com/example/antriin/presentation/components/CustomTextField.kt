@@ -38,7 +38,8 @@ fun CustomTextField(
     leadingIcon: ImageVector? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    supportingText: @Composable (() -> Unit)? = null
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
@@ -66,6 +67,7 @@ fun CustomTextField(
                 unfocusedBorderColor = Color.LightGray,
                 cursorColor = PrimaryOrange
             ),
+            supportingText = supportingText,
             modifier = Modifier.fillMaxWidth()
         )
     }

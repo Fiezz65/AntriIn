@@ -111,9 +111,17 @@ fun SellerProfileScreen(
 
                 CustomTextField(
                     value = editCanteenName,
-                    onValueChange = { editCanteenName = it },
+                    onValueChange = { if (it.length <= 25) editCanteenName = it },
                     label = "Nama Kantin",
-                    placeholder = "Contoh: Kantin Teknik"
+                    placeholder = "Contoh: Kantin Teknik",
+                    supportingText = {
+                        Text(
+                            text = "${editCanteenName.length}/25",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.End,
+                            color = TextGray
+                        )
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -200,15 +208,27 @@ fun SellerProfileScreen(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = user.canteenName, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = user.canteenName, 
+                            fontSize = 20.sp, 
+                            fontWeight = FontWeight.Bold, 
+                            color = TextBlack,
+                            modifier = Modifier.weight(1f, fill = false),
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
                         Icon(
                             imageVector = Icons.Default.Edit, 
                             contentDescription = "Edit Nama Kantin",
                             tint = TextGray,
                             modifier = Modifier
-                                .size(20.dp)
+                                .size(24.dp)
                                 .clip(CircleShape)
                                 .clickable { 
                                     editCanteenName = user.canteenName
