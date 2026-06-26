@@ -9,6 +9,7 @@ import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 
 class UserRepoImpl : UserRepository {
     private val usersRef = FirebaseDatabase.getInstance().getReference("users")
@@ -32,5 +33,15 @@ class UserRepoImpl : UserRepository {
         }
         usersRef.addValueEventListener(listener)
         awaitClose { usersRef.removeEventListener(listener) }
+    }
+
+    override suspend fun getCurrentUser(): User? {
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return null
+        return try {
+            val snapshot = usersRef.child(uid).get().await()
+            snapshot.getValue(User::class.java)
+        } catch (e: Exception) {
+            null
+        }
     }
 }

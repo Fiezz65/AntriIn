@@ -12,10 +12,14 @@ import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
 import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
 
 import android.app.DownloadManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -50,6 +54,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -83,6 +88,16 @@ fun CartScreen(
     val totalPrice by viewModel.totalPrice.collectAsState()
     var paymentMethod by remember { mutableStateOf("Tunai") }
     val context = LocalContext.current
+    val checkoutSuccess by viewModel.checkoutSuccess.collectAsState()
+
+    LaunchedEffect(checkoutSuccess) {
+        if (checkoutSuccess) {
+            showOrderNotification(context)
+            viewModel.resetCheckoutStatus()
+            onNavigate("home")
+            Toast.makeText(context, "Pesanan berhasil dibuat!", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     val dummyQrUrl = ""
     val dummyNotificationCount = 3
@@ -104,7 +119,7 @@ fun CartScreen(
                             Text(text = formatRupiah(totalPrice), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
                         }
                         Button(
-                            onClick = { },
+                            onClick = { viewModel.checkout(paymentMethod) },
                             colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
                             shape = RoundedCornerShape(8.dp)
                         ) {
@@ -295,3 +310,26 @@ fun downloadQrCode(context: Context, imageUrl: String) {
     }
 }
 
+fun showOrderNotification(context: Context) {
+    val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    val channelId = "order_channel"
+    
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val channel = NotificationChannel(
+            channelId,
+            "Pesanan",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        notificationManager.createNotificationChannel(channel)
+    }
+    
+    val notification = NotificationCompat.Builder(context, channelId)
+        .setSmallIcon(android.R.drawable.ic_dialog_info)
+        .setContentTitle("Pesanan Berhasil")
+        .setContentText("Pesanan berhasil dibuat dan menunggu validasi penjual")
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        .setAutoCancel(true)
+        .build()
+        
+    notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+}

@@ -60,6 +60,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -97,6 +98,10 @@ fun MenuScreen(
     val menus = menuState.menus
     val notifications by notificationViewModel.notifications.collectAsState()
     val context = androidx.compose.ui.platform.LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.refresh()
+    }
 
     var showMenuSheet by remember { mutableStateOf(false) }
     var editMenuId by remember { mutableStateOf("") }
@@ -364,16 +369,21 @@ fun MenuScreen(
                 }
             } else {
                 LazyColumn(modifier = Modifier.weight(1f)) {
-                    items(menus) { menu ->
+                    items(menus, key = { it.id }) { menu ->
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 6.dp),
                             colors = CardDefaults.cardColors(containerColor = Color.White),
-                            shape = RoundedCornerShape(12.dp),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                            shape = RoundedCornerShape(12.dp)
                         ) {
-                            Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.Top) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Box(modifier = Modifier
                                     .size(60.dp)
                                     .clip(RoundedCornerShape(8.dp))
@@ -428,5 +438,3 @@ fun MenuScreen(
         }
     }
 }
-
-

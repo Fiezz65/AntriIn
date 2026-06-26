@@ -11,11 +11,18 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 import com.example.antriin.domain.repository.MenuRepository
+import com.example.antriin.domain.repository.OrderRepository
+import com.example.antriin.domain.repository.UserRepository
+import com.example.antriin.domain.model.Order
+import com.example.antriin.domain.model.OrderItem
+import com.example.antriin.domain.model.OrderStatus
 import kotlinx.coroutines.flow.combine
 
 class CartViewModel(
     private val cartRepository: CartRepository,
-    private val menuRepository: MenuRepository
+    private val menuRepository: MenuRepository,
+    private val orderRepository: OrderRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
@@ -23,6 +30,11 @@ class CartViewModel(
 
     private val _totalPrice = MutableStateFlow(0)
     val totalPrice: StateFlow<Int> = _totalPrice
+
+    private val _checkoutSuccess = MutableStateFlow(false)
+    val checkoutSuccess: StateFlow<Boolean> = _checkoutSuccess
+
+    private var cachedMenus: List<Menu> = emptyList()
 
     init {
         viewModelScope.launch {
@@ -32,17 +44,16 @@ class CartViewModel(
             ) { cart, menus ->
                 Pair(cart, menus)
             }.collectLatest { (cart, menus) ->
-                // Check if any cart item is now sold out or removed from firebase
+                // Filter out items that are sold out or removed from firebase, but don't delete from local DB aggressively
                 val validCartItems = mutableListOf<CartItem>()
                 for (item in cart) {
                     val firebaseMenu = menus.find { it.id == item.menuId }
-                    if (firebaseMenu == null || firebaseMenu.soldOut) {
-                        // Automatically remove from cart if sold out or deleted in firebase
-                        cartRepository.updateQuantity(item.menuId, 0)
-                    } else {
+                    if (firebaseMenu != null && !firebaseMenu.soldOut) {
                         validCartItems.add(item)
                     }
                 }
+                
+                cachedMenus = menus
                 
                 _cartItems.value = validCartItems
                 calculateTotal(validCartItems)
@@ -74,5 +85,52 @@ class CartViewModel(
         viewModelScope.launch {
             cartRepository.clearCart()
         }
+    }
+
+    fun checkout(paymentMethod: String) {
+        viewModelScope.launch {
+            try {
+                val currentCart = _cartItems.value
+                if (currentCart.isEmpty()) return@launch
+
+                val user = userRepository.getCurrentUser() ?: return@launch
+                
+                val firstItem = currentCart.first()
+                val menu = cachedMenus.find { it.id == firstItem.menuId } ?: return@launch
+                val sellerId = menu.sellerId
+
+                val orderItems = currentCart.map { item ->
+                    OrderItem(
+                        menuId = item.menuId,
+                        menuName = item.menuName,
+                        quantity = item.quantity,
+                        price = item.price,
+                        notes = item.notes
+                    )
+                }
+
+                val order = Order(
+                    buyerId = user.uid,
+                    buyerName = user.fullName,
+                    sellerId = sellerId,
+                    items = orderItems,
+                    totalPrice = _totalPrice.value,
+                    paymentMethod = paymentMethod,
+                    status = OrderStatus.WAITING_VALIDATION,
+                    timestamp = System.currentTimeMillis()
+                )
+
+                val result = orderRepository.createOrder(order)
+                if (result.isSuccess) {
+                    cartRepository.clearCart()
+                    _checkoutSuccess.value = true
+                }
+            } catch (e: Exception) {
+            }
+        }
+    }
+
+    fun resetCheckoutStatus() {
+        _checkoutSuccess.value = false
     }
 }

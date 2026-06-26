@@ -40,7 +40,9 @@ object ViewModelFactory {
             val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AntriInApplication)
             CartViewModel(
                 cartRepository = application.container.cartRepository,
-                menuRepository = application.container.menuRepository
+                menuRepository = application.container.menuRepository,
+                orderRepository = application.container.orderRepository,
+                userRepository = application.container.userRepository
             )
         }
         initializer {
