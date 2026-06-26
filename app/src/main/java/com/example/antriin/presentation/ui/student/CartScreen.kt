@@ -77,7 +77,7 @@ import com.example.antriin.utils.formatRupiah
 fun CartScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
-    viewModel: CartViewModel = viewModel()
+    viewModel: CartViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val cartItems by viewModel.cartItems.collectAsState()
     val totalPrice by viewModel.totalPrice.collectAsState()
@@ -146,11 +146,11 @@ fun CartScreen(
             } else {
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(cartItems) { item ->
-                    CartItemCard(
-                        cartItem = item,
-                        onIncreaseClick = { },
-                        onDecreaseClick = { }
-                    )
+                        CartItemCard(
+                            cartItem = item,
+                            onIncreaseClick = { viewModel.updateQuantity(item.menuId, item.quantity + 1) },
+                            onDecreaseClick = { viewModel.updateQuantity(item.menuId, item.quantity - 1) }
+                        )
                 }
 
                 item {

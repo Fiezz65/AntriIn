@@ -80,7 +80,7 @@ fun HomeScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
     viewModel: HomeViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory),
-    cartViewModel: CartViewModel = viewModel()
+    cartViewModel: CartViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val weather by viewModel.weatherInfo.collectAsState()
     val isCrowded by viewModel.isCrowded.collectAsState()

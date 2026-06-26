@@ -1,11 +1,16 @@
 package com.example.antriin.presentation.viewmodel.student
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.antriin.domain.model.CartItem
+import com.example.antriin.domain.model.Menu
+import com.example.antriin.domain.repository.CartRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
-class CartViewModel : ViewModel() {
+class CartViewModel(private val cartRepository: CartRepository) : ViewModel() {
 
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems
@@ -14,40 +19,23 @@ class CartViewModel : ViewModel() {
     val totalPrice: StateFlow<Int> = _totalPrice
 
     init {
+        viewModelScope.launch {
+            cartRepository.getAllCartItems().collectLatest { items ->
+                _cartItems.value = items
+                calculateTotal(items)
+            }
+        }
     }
 
-    fun addToCart(menu: com.example.antriin.domain.model.Menu, quantity: Int, notes: String) {
-        val currentItems = _cartItems.value.toMutableList()
-        val existingIndex = currentItems.indexOfFirst { it.menuId == menu.id }
-        if (existingIndex != -1) {
-            val existing = currentItems[existingIndex]
-            currentItems[existingIndex] = existing.copy(quantity = existing.quantity + quantity, notes = notes)
-        } else {
-            val newItem = CartItem(
-                menuId = menu.id,
-                menuName = menu.name,
-                canteenName = menu.canteenName,
-                price = menu.price,
-                quantity = quantity,
-                notes = notes
-            )
-            currentItems.add(newItem)
+    fun addToCart(menu: Menu, quantity: Int, notes: String) {
+        viewModelScope.launch {
+            cartRepository.addToCart(menu, quantity, notes)
         }
-        _cartItems.value = currentItems
-        calculateTotal(currentItems)
     }
 
     fun updateQuantity(menuId: String, newQty: Int) {
-        val currentItems = _cartItems.value.toMutableList()
-        val index = currentItems.indexOfFirst { it.menuId == menuId }
-        if (index != -1) {
-            if (newQty <= 0) {
-                currentItems.removeAt(index)
-            } else {
-                currentItems[index] = currentItems[index].copy(quantity = newQty)
-            }
-            _cartItems.value = currentItems
-            calculateTotal(currentItems)
+        viewModelScope.launch {
+            cartRepository.updateQuantity(menuId, newQty)
         }
     }
 
@@ -60,7 +48,8 @@ class CartViewModel : ViewModel() {
     }
 
     fun clearCart() {
-        _cartItems.value = emptyList()
-        _totalPrice.value = 0
+        viewModelScope.launch {
+            cartRepository.clearCart()
+        }
     }
 }

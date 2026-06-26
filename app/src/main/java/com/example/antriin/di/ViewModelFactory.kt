@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.antriin.AntriInApplication
 import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
 import com.example.antriin.presentation.viewmodel.seller.MenuViewModel
+import com.example.antriin.presentation.viewmodel.student.CartViewModel
 import com.example.antriin.presentation.viewmodel.student.HomeViewModel
 
 object ViewModelFactory {
@@ -32,6 +33,12 @@ object ViewModelFactory {
                 menuRepository = application.container.menuRepository,
                 weatherRepository = application.container.weatherRepository,
                 userRepository = application.container.userRepository
+            )
+        }
+        initializer {
+            val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AntriInApplication)
+            CartViewModel(
+                cartRepository = application.container.cartRepository
             )
         }
     }
