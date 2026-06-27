@@ -51,6 +51,7 @@ object NotificationHelper {
             .setContentTitle("Pesanan Berhasil Dibuat!")
             .setContentText("Pesanan Anda sedang menunggu validasi penjual.")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setAutoCancel(true)
 
         with(NotificationManagerCompat.from(context)) {
@@ -69,6 +70,7 @@ object NotificationHelper {
             .setContentTitle("Pesanan Baru Masuk!")
             .setContentText("Pesanan baru dari $buyerName. Segera validasi di Dashboard.")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setAutoCancel(true)
 
         with(NotificationManagerCompat.from(context)) {
