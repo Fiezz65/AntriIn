@@ -57,5 +57,12 @@ object ViewModelFactory {
                 cartRepository = application.container.cartRepository
             )
         }
+        initializer {
+            val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AntriInApplication)
+            com.example.antriin.presentation.viewmodel.seller.DashboardViewModel(
+                orderRepository = application.container.orderRepository,
+                userRepository = application.container.userRepository
+            )
+        }
     }
 }

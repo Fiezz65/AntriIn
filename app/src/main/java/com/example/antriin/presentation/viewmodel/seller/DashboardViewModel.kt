@@ -1,12 +1,22 @@
-﻿package com.example.antriin.presentation.viewmodel.seller
+package com.example.antriin.presentation.viewmodel.seller
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.antriin.domain.model.Order
 import com.example.antriin.domain.model.OrderItem
+import com.example.antriin.domain.repository.OrderRepository
+import com.example.antriin.domain.repository.UserRepository
+import com.example.antriin.utils.NotificationHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
-class DashboardViewModel : ViewModel() {
+class DashboardViewModel(
+    private val orderRepository: OrderRepository,
+    private val userRepository: UserRepository
+) : ViewModel() {
 
     private val _incomingOrders = MutableStateFlow<List<Order>>(emptyList())
     val incomingOrders: StateFlow<List<Order>> = _incomingOrders
@@ -18,7 +28,27 @@ class DashboardViewModel : ViewModel() {
     val totalRevenue: StateFlow<Int> = _totalRevenue
 
     init {
-        loadDummyOrders()
+        loadDummyOrders() // Keep this for now for UI visualization, or replace it if you have full implementation
+    }
+
+    fun startListeningForNewOrders(context: Context) {
+        viewModelScope.launch {
+            val user = userRepository.getCurrentUser()
+            if (user != null && user.role == "penjual") {
+                orderRepository.listenForNewOrders(user.uid).collectLatest { newOrder ->
+                    // Trigger local notification when a TRULY new order arrives
+                    NotificationHelper.showSellerNewOrderNotification(context, newOrder.buyerName)
+                    
+                    // Add it to the local list (prepend)
+                    val currentList = _incomingOrders.value.toMutableList()
+                    // Avoid duplicates if any
+                    if (currentList.none { it.orderId == newOrder.orderId }) {
+                        currentList.add(0, newOrder)
+                        _incomingOrders.value = currentList
+                    }
+                }
+            }
+        }
     }
 
     private fun loadDummyOrders() {
@@ -30,38 +60,8 @@ class DashboardViewModel : ViewModel() {
                 totalPrice = 45000,
                 status = "Belum Bayar",
                 items = listOf(
-                    OrderItem(menuName = "Nasi Goreng Spesial", quantity = 2, price = 40000, notes = "Yang satu pedes, yang satu jangan pake kecap"),
-                    OrderItem(menuName = "Es Teh Manis", quantity = 1, price = 5000, notes = "")
-                )
-            ),
-            Order(
-                orderId = "#ANT-002",
-                buyerName = "Siti Maimunah",
-                paymentMethod = "QRIS",
-                totalPrice = 18000,
-                status = "Menunggu Validasi",
-                items = listOf(
-                    OrderItem(menuName = "Mie Ayam Jamur", quantity = 1, price = 18000, notes = "Jangan pakai daun bawang ya bang")
-                )
-            ),
-            Order(
-                orderId = "#ANT-003",
-                buyerName = "Andi K.",
-                paymentMethod = "QRIS",
-                totalPrice = 15000,
-                status = "Diproses",
-                items = listOf(
-                    OrderItem(menuName = "Mie Ayam Spesial", quantity = 1, price = 15000, notes = "Mienya agak lembek ya")
-                )
-            ),
-            Order(
-                orderId = "#ANT-004",
-                buyerName = "Citra W.",
-                paymentMethod = "Tunai",
-                totalPrice = 12000,
-                status = "Siap Diambil",
-                items = listOf(
-                    OrderItem(menuName = "Burger Kampung", quantity = 1, price = 12000, notes = "")
+                    OrderItem(menuId = "1", menuName = "Nasi Goreng Spesial", quantity = 2, price = 40000, notes = "Yang satu pedes, yang satu jangan pake kecap"),
+                    OrderItem(menuId = "2", menuName = "Es Teh Manis", quantity = 1, price = 5000, notes = "")
                 )
             )
         )
