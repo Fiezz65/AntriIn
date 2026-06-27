@@ -33,7 +33,7 @@ class SellerNotificationViewModel(
                     val notifList = mutableListOf<Triple<String, String, Boolean>>()
                     orders.forEach { order ->
                         val menuNames = order.items.formatMenuNames()
-                        val isUnread = order.timestamp > lastReadTime
+                        val isUnread = order.lastUpdated > lastReadTime
                         when (order.status) {
                             "Menunggu Validasi" -> notifList.add(Triple("Pesanan Baru!", "Pesanan baru dari ${order.buyerName} ($menuNames, ${order.paymentMethod}) menunggu validasi.", isUnread))
                             "Belum Bayar" -> notifList.add(Triple("Menunggu Pembayaran", "Pesanan dari ${order.buyerName} ($menuNames, ${order.paymentMethod}) belum dibayar.", isUnread))
@@ -69,7 +69,7 @@ class SellerNotificationViewModel(
                     orders.forEach { order ->
                         if ((order.status == "Menunggu Validasi" || order.status == "Belum Bayar") && !com.example.antriin.utils.NotificationState.notifiedOrderIds.contains(order.orderId)) {
                             com.example.antriin.utils.NotificationState.notifiedOrderIds.add(order.orderId)
-                            if (!isInitialLoad || order.timestamp > lastReadTime) {
+                            if (!isInitialLoad || order.lastUpdated > lastReadTime) {
                                 val menuNames = order.items.formatMenuNames()
                                 com.example.antriin.utils.NotificationHelper.showSellerNewOrderNotification(context, order.buyerName, menuNames, order.paymentMethod)
                             }

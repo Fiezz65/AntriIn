@@ -33,7 +33,7 @@ class StudentNotificationViewModel(
                     val notifList = mutableListOf<Triple<String, String, Boolean>>()
                     orders.forEach { order ->
                         val menuNames = order.items.formatMenuNames()
-                        val isUnread = order.timestamp > lastReadTime
+                        val isUnread = order.lastUpdated > lastReadTime
                         when (order.status) {
                             "Belum Bayar", "Menunggu Validasi" -> {
                                 if (order.paymentMethod == "Tunai") {
@@ -84,20 +84,24 @@ class StudentNotificationViewModel(
                             com.example.antriin.utils.NotificationState.notifiedStudentOrderStatuses.add(statusKey)
                             
                             val lastReadTime = orderRepository.getLastReadTime("student")
-                            if (!isInitialLoad || order.timestamp > lastReadTime) {
-                                if (order.status != "Selesai") {
+                            if (!isInitialLoad || order.lastUpdated > lastReadTime) {
+                                val missedSiapDiambil = order.status == "Selesai" && !com.example.antriin.utils.NotificationState.notifiedStudentOrderStatuses.contains("${order.orderId}_Siap Diambil")
+                                if (order.status != "Selesai" || missedSiapDiambil) {
+                                    if (missedSiapDiambil) {
+                                        com.example.antriin.utils.NotificationState.notifiedStudentOrderStatuses.add("${order.orderId}_Siap Diambil")
+                                    }
                                     val menuNames = order.items.formatMenuNames()
                                     val title = when (order.status) {
                                         "Menunggu Validasi", "Belum Bayar" -> "Pesanan Dibuat"
                                         "Diproses" -> "Pesanan Diproses"
-                                        "Siap Diambil" -> "Pesanan Siap Diambil!"
+                                        "Siap Diambil", "Selesai" -> "Pesanan Siap Diambil!"
                                         "Dibatalkan" -> "Pesanan Dibatalkan"
                                         else -> "Update Pesanan"
                                     }
                                     val msg = when (order.status) {
                                         "Menunggu Validasi", "Belum Bayar" -> "Pesanan $menuNames Anda sedang menunggu proses."
                                         "Diproses" -> "Hore! Pesanan $menuNames Anda sedang diproses oleh penjual."
-                                        "Siap Diambil" -> "Pesanan $menuNames Anda selesai diproses dan siap diambil. Silakan ambil di Kantin!"
+                                        "Siap Diambil", "Selesai" -> "Pesanan $menuNames Anda selesai diproses dan siap diambil. Silakan ambil di Kantin!"
                                         "Dibatalkan" -> "Pesanan $menuNames Anda dibatalkan oleh penjual."
                                         else -> "Status pesanan $menuNames Anda telah diperbarui."
                                     }

@@ -13,6 +13,7 @@ import com.example.antriin.presentation.viewmodel.student.StudentNotificationVie
 import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -63,6 +64,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -77,7 +81,7 @@ import com.example.antriin.presentation.theme.TextBlack
 import com.example.antriin.presentation.theme.TextGray
 import com.example.antriin.utils.formatRupiah
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     onNavigate: (String) -> Unit,
@@ -87,7 +91,25 @@ fun HomeScreen(
     notificationViewModel: StudentNotificationViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val weather by viewModel.weatherInfo.collectAsState()
-    val isCrowded by viewModel.isCrowded.collectAsState()
+    val crowdCount by viewModel.crowdCount.collectAsState()
+
+    val crowdStatusBgColor = when {
+        crowdCount <= 3 -> Color(0xFFE8F5E9)
+        crowdCount < 10 -> Color(0xFFFDECE2)
+        else -> Color(0xFFFFEBEE)
+    }
+    
+    val crowdStatusIndicatorColor = when {
+        crowdCount <= 3 -> Color(0xFF4CAF50)
+        crowdCount < 10 -> PrimaryOrange
+        else -> Color.Red
+    }
+    
+    val crowdStatusText = when {
+        crowdCount <= 3 -> "Kantin Sepi"
+        crowdCount < 10 -> "Kantin Normal"
+        else -> "Kantin Ramai"
+    }
     val menuState by viewModel.menuList.collectAsState()
     val menuList = menuState.menus
     val locations by viewModel.locations.collectAsState()
@@ -300,19 +322,22 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "Selamat datang, ",
-                        fontSize = 16.sp,
-                        color = TextGray
-                    )
-                    Text(
-                        text = if (userName.isNotEmpty()) userName else "Memuat...",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextBlack
-                    )
-                }
+                androidx.compose.material3.Text(
+                    text = buildAnnotatedString {
+                        withStyle(
+                            style = SpanStyle(color = TextGray, fontWeight = FontWeight.Normal)
+                        ) {
+                            append("Selamat datang, ")
+                        }
+                        withStyle(
+                            style = SpanStyle(color = TextBlack, fontWeight = FontWeight.Bold)
+                        ) {
+                            append(if (userName.isNotEmpty()) userName else "Memuat...")
+                        }
+                    },
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -427,7 +452,7 @@ fun HomeScreen(
                                 .weight(1f)
                                 .fillMaxHeight(),
                             colors = CardDefaults.cardColors(
-                                containerColor = if (isCrowded) Color(0xFFFFEBEE) else Color(0xFFE8F5E9)
+                                containerColor = crowdStatusBgColor
                             ),
                             shape = RoundedCornerShape(12.dp)
                         ) {
@@ -446,15 +471,15 @@ fun HomeScreen(
                                     Box(
                                         modifier = Modifier
                                             .size(10.dp)
-                                            .background(if (isCrowded) Color.Red else Color(0xFF4CAF50), CircleShape)
+                                            .background(crowdStatusIndicatorColor, CircleShape)
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    text = if (isCrowded) "Kantin Ramai" else "Kantin Tidak Ramai",
+                                    text = crowdStatusText,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = if (isCrowded) Color.Red else Color(0xFF2E7D32),
+                                    color = crowdStatusIndicatorColor,
                                     lineHeight = 16.sp
                                 )
                             }
@@ -488,7 +513,11 @@ fun HomeScreen(
                                     text = if (selectedCanteen == "Semua Kantin") "Semua Kantin" else selectedCanteen,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = PrimaryOrange
+                                    color = PrimaryOrange,
+                                    maxLines = 1,
+                                    modifier = Modifier
+                                        .weight(1f, fill = false)
+                                        .basicMarquee()
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = PrimaryOrange)

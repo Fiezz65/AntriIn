@@ -9,8 +9,11 @@ data class Order(
     val totalPrice: Int = 0,
     val paymentMethod: String = "",
     val status: String = OrderStatus.WAITING_VALIDATION,
-    val timestamp: Long = 0L
-)
+    val timestamp: Long = 0L,
+    val updatedAt: Long = 0L
+) {
+    val lastUpdated: Long get() = if (updatedAt > 0) updatedAt else timestamp
+}
 
 data class OrderItem(
     val menuId: String = "",

@@ -16,17 +16,20 @@ import kotlinx.coroutines.launch
 
 import com.example.antriin.presentation.viewmodel.seller.MenuState
 
+import com.example.antriin.domain.repository.OrderRepository
+
 class HomeViewModel(
     private val menuRepository: MenuRepository,
     private val weatherRepository: WeatherRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val orderRepository: OrderRepository
 ) : ViewModel() {
 
     private val _weatherInfo = MutableStateFlow(WeatherInfo("-", "Memuat..."))
     val weatherInfo: StateFlow<WeatherInfo> = _weatherInfo
 
-    private val _isCrowded = MutableStateFlow(true)
-    val isCrowded: StateFlow<Boolean> = _isCrowded
+    private val _crowdCount = MutableStateFlow(0)
+    val crowdCount: StateFlow<Int> = _crowdCount
 
     private val _menuList = MutableStateFlow(MenuState())
     val menuList: StateFlow<MenuState> = _menuList
@@ -108,9 +111,27 @@ class HomeViewModel(
                         } catch (e: Exception) {
                         }
                     }
+
+                    launch {
+                        userRepository.getSellersByLocation(location).collect { sellers ->
+                            val sellerQueueMap = mutableMapOf<String, Int>()
+                            sellers.forEach { seller ->
+                                launch {
+                                    orderRepository.getSellerOrders(seller.uid).collect { orders ->
+                                        val activeOrders = orders.count {
+                                            it.status == "Menunggu Validasi" || it.status == "Diproses" || it.status == "Siap Diambil"
+                                        }
+                                        sellerQueueMap[seller.uid] = activeOrders
+                                        _crowdCount.value = sellerQueueMap.values.sum()
+                                    }
+                                }
+                            }
+                        }
+                    }
                 } else {
                     _menuList.value = MenuState()
                     _weatherInfo.value = WeatherInfo("-", "Pilih lokasi", "-")
+                    _crowdCount.value = 0
                 }
             }
         }
