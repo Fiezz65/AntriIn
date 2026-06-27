@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -56,9 +57,16 @@ fun StudentNotificationScreen(
     val notifications by viewModel.notifications.collectAsState()
     
     val context = androidx.compose.ui.platform.LocalContext.current
+    
     LaunchedEffect(Unit) {
         viewModel.startGlobalListener(context)
-        viewModel.markAsRead()
+        viewModel.clearBadge()
+    }
+    
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.markAsRead()
+        }
     }
 
     Column(
@@ -90,7 +98,9 @@ fun StudentNotificationScreen(
                 items(notifications.size) { index ->
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (notifications[index].third) PrimaryOrange.copy(alpha = 0.08f) else Color.White
+                    ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {

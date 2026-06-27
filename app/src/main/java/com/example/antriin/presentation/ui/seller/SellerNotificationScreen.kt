@@ -56,7 +56,13 @@ fun SellerNotificationScreen(
     val context = androidx.compose.ui.platform.LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.startGlobalListener(context)
-        viewModel.markAsRead()
+        viewModel.clearBadge()
+    }
+
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        onDispose {
+            viewModel.markAsRead()
+        }
     }
 
     Column(
@@ -88,7 +94,9 @@ fun SellerNotificationScreen(
                 items(notificationList.size) { index ->
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (notificationList[index].third) PrimaryOrange.copy(alpha = 0.08f) else Color.White
+                    ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {

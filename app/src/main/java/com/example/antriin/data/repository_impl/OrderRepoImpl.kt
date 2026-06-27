@@ -110,17 +110,31 @@ class OrderRepoImpl(
 
     override fun getUnreadCount(orders: List<Order>, role: String): Int {
         val lastReadTime = prefs.getLong("last_read_time_$role", 0L)
-        return orders.count { it.timestamp > lastReadTime }
+        return if (role == "seller") {
+            orders.count { it.timestamp > lastReadTime && (it.status == "Menunggu Validasi" || it.status == "Belum Bayar") }
+        } else {
+            orders.count { it.timestamp > lastReadTime }
+        }
     }
 
     override fun markAsRead(role: String) {
         prefs.edit().putLong("last_read_time_$role", System.currentTimeMillis()).apply()
     }
 
+    override fun getLastReadTime(role: String): Long {
+        return prefs.getLong("last_read_time_$role", 0L)
+    }
+
     override suspend fun updateOrderStatus(orderId: String, newStatus: String): Result<Boolean> {
         return try {
             val ref = database.getReference("Orders").child(orderId)
-            ref.child("status").setValue(newStatus).await()
+            val updates = mutableMapOf<String, Any>(
+                "status" to newStatus
+            )
+            if (newStatus != "Selesai") {
+                updates["timestamp"] = System.currentTimeMillis()
+            }
+            ref.updateChildren(updates).await()
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)

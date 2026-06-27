@@ -44,4 +44,21 @@ class DashboardViewModel(
         }
     }
 
+    fun updateOrderStatus(orderId: String, currentStatus: String) {
+        viewModelScope.launch {
+            val newStatus = when (currentStatus) {
+                "Menunggu Validasi", "Belum Bayar" -> "Diproses"
+                "Diproses" -> "Siap Diambil"
+                "Siap Diambil" -> "Selesai"
+                else -> return@launch
+            }
+            orderRepository.updateOrderStatus(orderId, newStatus)
+        }
+    }
+
+    fun cancelOrder(orderId: String) {
+        viewModelScope.launch {
+            orderRepository.updateOrderStatus(orderId, "Dibatalkan")
+        }
+    }
 }

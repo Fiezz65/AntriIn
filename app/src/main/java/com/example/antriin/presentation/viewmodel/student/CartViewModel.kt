@@ -132,4 +132,8 @@ class CartViewModel(
     fun resetCheckoutStatus() {
         _checkoutSuccess.value = false
     }
+
+    fun getMenuIcon(menuId: String): String {
+        return cachedMenus.find { it.id == menuId }?.icon ?: "🍱"
+    }
 }

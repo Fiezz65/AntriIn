@@ -87,7 +87,7 @@ object NotificationHelper {
     }
 
     @SuppressLint("MissingPermission")
-    fun showSellerNewOrderNotification(context: Context, buyerName: String) {
+    fun showSellerNewOrderNotification(context: Context, buyerName: String, menuNames: String, paymentMethod: String) {
         if (!checkNotificationPermission(context)) return
 
         createNotificationChannel(context)
@@ -95,7 +95,7 @@ object NotificationHelper {
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("Pesanan Baru Masuk!")
-            .setContentText("Pesanan baru dari $buyerName. Segera validasi di Dashboard.")
+            .setContentText("Pesanan baru dari $buyerName ($menuNames, $paymentMethod). Segera validasi di Dashboard.")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setAutoCancel(true)
@@ -104,4 +104,13 @@ object NotificationHelper {
             notify(System.currentTimeMillis().toInt(), builder.build())
         }
     }
+}
+
+fun List<com.example.antriin.domain.model.OrderItem>.formatMenuNames(): String {
+    if (isEmpty()) return ""
+    if (size == 1) return first().menuName
+    if (size == 2) return "${this[0].menuName} dan ${this[1].menuName}"
+    
+    val allButLast = dropLast(1).joinToString(", ") { it.menuName }
+    return "$allButLast, & ${last().menuName}"
 }

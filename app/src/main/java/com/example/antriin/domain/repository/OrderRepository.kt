@@ -11,4 +11,5 @@ interface OrderRepository {
     
     fun getUnreadCount(orders: List<com.example.antriin.domain.model.Order>, role: String): Int
     fun markAsRead(role: String)
+    fun getLastReadTime(role: String): Long
 }
