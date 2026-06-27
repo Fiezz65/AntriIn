@@ -78,7 +78,7 @@ fun DashboardScreen(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        viewModel.startListeningForNewOrders(context)
+        notificationViewModel.startGlobalListener(context)
     }
 
     val orderFilters = listOf("Semua", "Menunggu", "Diproses", "Siap")

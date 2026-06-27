@@ -34,7 +34,7 @@ class DashboardViewModel(
     private fun loadOrders() {
         viewModelScope.launch {
             val user = userRepository.getCurrentUser()
-            if (user != null && user.role == "penjual") {
+            if (user != null && user.role.equals("penjual", ignoreCase = true)) {
                 orderRepository.getSellerOrders(user.uid).collectLatest { orders ->
                     _incomingOrders.value = orders.filter { 
                         it.status == "Belum Bayar" || it.status == "Menunggu Validasi" || it.status == "Diproses" || it.status == "Siap Diambil" 
@@ -44,14 +44,4 @@ class DashboardViewModel(
         }
     }
 
-    fun startListeningForNewOrders(context: Context) {
-        viewModelScope.launch {
-            val user = userRepository.getCurrentUser()
-            if (user != null && user.role == "penjual") {
-                orderRepository.listenForNewOrders(user.uid).collectLatest { newOrder ->
-                    NotificationHelper.showSellerNewOrderNotification(context, newOrder.buyerName)
-                }
-            }
-        }
-    }
 }

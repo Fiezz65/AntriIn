@@ -53,7 +53,9 @@ fun SellerNotificationScreen(
 ) {
     val notificationList by viewModel.notifications.collectAsState()
 
+    val context = androidx.compose.ui.platform.LocalContext.current
     LaunchedEffect(Unit) {
+        viewModel.startGlobalListener(context)
         viewModel.markAsRead()
     }
 

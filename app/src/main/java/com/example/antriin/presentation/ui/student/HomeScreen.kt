@@ -106,6 +106,11 @@ fun HomeScreen(
     var selectedCanteen by remember { mutableStateOf("Semua Kantin") }
     var isCanteenDropdownExpanded by remember { mutableStateOf(false) }
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+    LaunchedEffect(Unit) {
+        notificationViewModel.startGlobalListener(context)
+    }
+
     LaunchedEffect(menuList) {
         if (selectedCanteen != "Semua Kantin" && !menuList.any { it.canteenName == selectedCanteen }) {
             selectedCanteen = "Semua Kantin"

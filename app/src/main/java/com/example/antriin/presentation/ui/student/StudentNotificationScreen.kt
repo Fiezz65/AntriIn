@@ -55,7 +55,9 @@ fun StudentNotificationScreen(
 ) {
     val notifications by viewModel.notifications.collectAsState()
     
+    val context = androidx.compose.ui.platform.LocalContext.current
     LaunchedEffect(Unit) {
+        viewModel.startGlobalListener(context)
         viewModel.markAsRead()
     }
 

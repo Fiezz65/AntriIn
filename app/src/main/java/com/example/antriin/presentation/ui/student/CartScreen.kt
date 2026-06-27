@@ -92,6 +92,9 @@ fun CartScreen(
     val context = LocalContext.current
     val checkoutSuccess by viewModel.checkoutSuccess.collectAsState()
 
+    LaunchedEffect(Unit) {
+        notificationViewModel.startGlobalListener(context)
+    }
 
     LaunchedEffect(checkoutSuccess) {
         if (checkoutSuccess) {

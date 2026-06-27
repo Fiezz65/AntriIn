@@ -47,4 +47,24 @@ class SellerNotificationViewModel(
         orderRepository.markAsRead("seller")
         com.example.antriin.utils.NotificationState.sellerUnreadCount.value = 0
     }
+    
+    private var isListenerStarted = false
+
+    fun startGlobalListener(context: android.content.Context) {
+        if (isListenerStarted) return
+        isListenerStarted = true
+        viewModelScope.launch {
+            val user = userRepository.getCurrentUser()
+            if (user != null) {
+                orderRepository.getSellerOrders(user.uid).collectLatest { orders ->
+                    orders.forEach { order ->
+                        if ((order.status == "Menunggu Validasi" || order.status == "Belum Bayar") && !com.example.antriin.utils.NotificationState.notifiedOrderIds.contains(order.orderId)) {
+                            com.example.antriin.utils.NotificationState.notifiedOrderIds.add(order.orderId)
+                            com.example.antriin.utils.NotificationHelper.showSellerNewOrderNotification(context, order.buyerName)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

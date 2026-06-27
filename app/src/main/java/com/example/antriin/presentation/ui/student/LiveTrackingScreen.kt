@@ -68,6 +68,11 @@ fun LiveTrackingScreen(
     val notifications by notificationViewModel.notifications.collectAsState()
     val notificationCount by notificationViewModel.unreadCount.collectAsState()
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        notificationViewModel.startGlobalListener(context)
+    }
+
     Scaffold(
         bottomBar = {
             BottomNavBar(

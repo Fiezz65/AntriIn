@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 object NotificationState {
     val studentUnreadCount = MutableStateFlow(0)
     val sellerUnreadCount = MutableStateFlow(0)
+    val notifiedOrderIds: MutableSet<String> = mutableSetOf()
+    val notifiedStudentOrderStatuses: MutableSet<String> = mutableSetOf()
 }
 
 object NotificationHelper {
@@ -56,6 +58,25 @@ object NotificationHelper {
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("Pesanan Berhasil Dibuat!")
             .setContentText("Pesanan Anda sedang menunggu validasi penjual.")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setAutoCancel(true)
+
+        with(NotificationManagerCompat.from(context)) {
+            notify(System.currentTimeMillis().toInt(), builder.build())
+        }
+    }
+    
+    @SuppressLint("MissingPermission")
+    fun showStudentOrderStatusNotification(context: Context, title: String, message: String) {
+        if (!checkNotificationPermission(context)) return
+
+        createNotificationChannel(context)
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle(title)
+            .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setAutoCancel(true)

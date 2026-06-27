@@ -102,6 +102,7 @@ fun MenuScreen(
 
     LaunchedEffect(Unit) {
         viewModel.refresh()
+        notificationViewModel.startGlobalListener(context)
     }
 
     var showMenuSheet by remember { mutableStateOf(false) }
@@ -383,17 +384,20 @@ fun MenuScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.Top
                             ) {
-                                Box(modifier = Modifier
-                                    .size(60.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(Color(0xFFFDECE2)), contentAlignment = Alignment.Center) {
-                                    Text(text = menu.icon, fontSize = 24.sp)
+                                Box(
+                                    modifier = Modifier
+                                        .size(64.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(Color(0xFFFDECE2)), 
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(text = menu.icon, fontSize = 28.sp)
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(text = menu.name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextBlack)
+                                    Text(text = menu.name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TextBlack)
                                     Text(text = formatRupiah(menu.price), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
                                     Text(text = menu.description, fontSize = 12.sp, color = TextGray, modifier = Modifier.padding(top = 4.dp), maxLines = 3, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                                 }

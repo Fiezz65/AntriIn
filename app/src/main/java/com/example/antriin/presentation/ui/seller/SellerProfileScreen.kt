@@ -84,6 +84,11 @@ fun SellerProfileScreen(
     val qrUri by viewModel.qrCodeUri.collectAsState()
     val notifications by notificationViewModel.notifications.collectAsState()
     val notificationCount by notificationViewModel.unreadCount.collectAsState()
+    
+    val context = androidx.compose.ui.platform.LocalContext.current
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        notificationViewModel.startGlobalListener(context)
+    }
 
     var showEditSheet by remember { mutableStateOf(false) }
     var editCanteenName by remember { mutableStateOf("") }
