@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextOverflow
 import com.example.antriin.domain.model.Order
 import com.example.antriin.presentation.theme.PrimaryOrange
 import com.example.antriin.presentation.theme.TextBlack
@@ -27,6 +28,7 @@ import com.example.antriin.presentation.theme.TextBlack
 fun QueueStatusCard(
     order: Order,
     isCurrentUser: Boolean,
+    queueNumber: Int,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -46,30 +48,35 @@ fun QueueStatusCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
-                        .background(Color(0xFFEEEEEE), CircleShape),
+                        .size(28.dp)
+                        .background(PrimaryOrange, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "👤", fontSize = 16.sp)
+                    Text(text = queueNumber.toString(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
 
                 Text(
-                    text = if (isCurrentUser) "Saya" else order.buyerName,
-                    fontSize = 16.sp,
+                    text = order.buyerName,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = TextBlack,
-                    modifier = Modifier.padding(start = 12.dp)
+                    modifier = Modifier.padding(start = 12.dp, end = 8.dp)
                 )
             }
 
+            val displayStatus = if (order.status == "Menunggu Validasi" || order.status == com.example.antriin.domain.model.OrderStatus.WAITING_VALIDATION) "Menunggu" else order.status
             Text(
-                text = order.status,
+                text = displayStatus,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (order.status == "Siap Diambil") Color(0xFF4CAF50) else PrimaryOrange,
+                maxLines = 1,
                 modifier = Modifier
                     .background(
                         color = if (order.status == "Siap Diambil") Color(0xFFE8F5E9) else Color(0xFFFDECE2),

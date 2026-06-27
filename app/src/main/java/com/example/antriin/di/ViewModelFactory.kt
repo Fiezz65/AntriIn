@@ -33,7 +33,8 @@ object ViewModelFactory {
             HomeViewModel(
                 menuRepository = application.container.menuRepository,
                 weatherRepository = application.container.weatherRepository,
-                userRepository = application.container.userRepository
+                userRepository = application.container.userRepository,
+                orderRepository = application.container.orderRepository
             )
         }
         initializer {
@@ -74,6 +75,13 @@ object ViewModelFactory {
         initializer {
             val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AntriInApplication)
             com.example.antriin.presentation.viewmodel.seller.SellerNotificationViewModel(
+                orderRepository = application.container.orderRepository,
+                userRepository = application.container.userRepository
+            )
+        }
+        initializer {
+            val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AntriInApplication)
+            com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel(
                 orderRepository = application.container.orderRepository,
                 userRepository = application.container.userRepository
             )

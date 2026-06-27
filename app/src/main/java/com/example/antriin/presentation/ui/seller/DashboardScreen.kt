@@ -91,7 +91,7 @@ fun DashboardScreen(
             "Siap" -> order.status == "Siap Diambil"
             else -> true
         }
-    }
+    }.sortedBy { it.timestamp }
 
     val indicatorText = when (selectedFilter) {
         "Semua" -> "${filteredOrders.size} Pesanan"
@@ -100,6 +100,10 @@ fun DashboardScreen(
         "Siap" -> "${filteredOrders.size} Siap"
         else -> ""
     }
+
+    val activeQueue = incomingOrders.filter {
+        it.status == "Menunggu Validasi" || it.status == "Diproses" || it.status == "Siap Diambil"
+    }.sortedBy { it.timestamp }
 
     Scaffold(
         bottomBar = {
@@ -238,10 +242,14 @@ fun DashboardScreen(
                 }
             } else {
                 items(filteredOrders) { order ->
+                    val queueIndex = activeQueue.indexOfFirst { it.orderId == order.orderId }
+                    val qNum = if (queueIndex >= 0) queueIndex + 1 else null
+                    
                     OrderCard(
                         order = order,
                         onNextStepClick = { viewModel.updateOrderStatus(order.orderId, order.status) },
-                        onCancelClick = { viewModel.cancelOrder(order.orderId) }
+                        onCancelClick = { viewModel.cancelOrder(order.orderId) },
+                        queueNumber = qNum
                     )
                 }
             }

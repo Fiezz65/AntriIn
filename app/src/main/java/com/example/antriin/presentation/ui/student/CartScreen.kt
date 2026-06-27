@@ -99,7 +99,7 @@ fun CartScreen(
     LaunchedEffect(checkoutSuccess) {
         if (checkoutSuccess) {
             viewModel.resetCheckoutStatus()
-            onNavigate("home")
+            onTabNavigate("tracking")
             Toast.makeText(context, "Pesanan berhasil dibuat!", Toast.LENGTH_SHORT).show()
         }
     }

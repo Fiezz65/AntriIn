@@ -275,6 +275,7 @@ fun MenuScreen(
             onDismissRequest = { menuToDelete = null },
             title = { Text("Hapus Menu", fontWeight = FontWeight.Bold) },
             text = { Text("Apakah Anda yakin ingin menghapus menu ${menuToDelete?.name}?") },
+            containerColor = Color.White,
             confirmButton = {
                 TextButton(
                     onClick = {

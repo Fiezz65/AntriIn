@@ -155,7 +155,7 @@ fun StudentProfileScreen(
                     Text(text = user.phoneNumber, fontSize = 14.sp, color = TextGray, textAlign = TextAlign.Center)
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Mahasiswa Aktif",
+                        text = "Mahasiswa",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF3F51B5),

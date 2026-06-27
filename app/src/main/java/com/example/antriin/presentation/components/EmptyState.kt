@@ -30,7 +30,6 @@ fun EmptyState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Spacer(modifier = Modifier.height(40.dp))
         Text(
             text = title,
             fontSize = 18.sp,
@@ -45,6 +44,5 @@ fun EmptyState(
             color = TextGray,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(40.dp))
     }
 }

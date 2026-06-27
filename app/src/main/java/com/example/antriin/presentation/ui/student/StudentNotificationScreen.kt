@@ -91,7 +91,7 @@ fun StudentNotificationScreen(
                     com.example.antriin.presentation.components.EmptyState(
                         title = "Belum Ada Notifikasi",
                         message = "Tidak ada pemberitahuan baru saat ini.",
-                        modifier = Modifier.padding(top = 40.dp)
+                        modifier = Modifier.fillParentMaxHeight()
                     )
                 }
             } else {

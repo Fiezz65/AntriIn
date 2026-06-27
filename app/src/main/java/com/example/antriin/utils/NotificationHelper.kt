@@ -112,5 +112,5 @@ fun List<com.example.antriin.domain.model.OrderItem>.formatMenuNames(): String {
     if (size == 2) return "${this[0].menuName} dan ${this[1].menuName}"
     
     val allButLast = dropLast(1).joinToString(", ") { it.menuName }
-    return "$allButLast, & ${last().menuName}"
+    return "$allButLast, dan ${last().menuName}"
 }

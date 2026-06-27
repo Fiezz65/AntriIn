@@ -111,9 +111,9 @@ class OrderRepoImpl(
     override fun getUnreadCount(orders: List<Order>, role: String): Int {
         val lastReadTime = prefs.getLong("last_read_time_$role", 0L)
         return if (role == "seller") {
-            orders.count { it.timestamp > lastReadTime && (it.status == "Menunggu Validasi" || it.status == "Belum Bayar") }
+            orders.count { it.lastUpdated > lastReadTime && (it.status == "Menunggu Validasi" || it.status == "Belum Bayar") }
         } else {
-            orders.count { it.timestamp > lastReadTime }
+            orders.count { it.lastUpdated > lastReadTime }
         }
     }
 
@@ -132,7 +132,7 @@ class OrderRepoImpl(
                 "status" to newStatus
             )
             if (newStatus != "Selesai") {
-                updates["timestamp"] = System.currentTimeMillis()
+                updates["updatedAt"] = System.currentTimeMillis()
             }
             ref.updateChildren(updates).await()
             Result.success(true)

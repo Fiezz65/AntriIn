@@ -37,11 +37,31 @@ class UserRepoImpl : UserRepository {
 
     override suspend fun getCurrentUser(): User? {
         val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return null
+        return getUserById(uid)
+    }
+
+    override suspend fun getUserById(uid: String): User? {
         return try {
             val snapshot = usersRef.child(uid).get().await()
             snapshot.getValue(User::class.java)
         } catch (e: Exception) {
             null
+        }
+    }
+
+    override suspend fun getAllSellers(): List<User> {
+        return try {
+            val snapshot = usersRef.get().await()
+            val sellers = mutableListOf<User>()
+            for (child in snapshot.children) {
+                val user = child.getValue(User::class.java)
+                if (user != null && user.role == "Penjual") {
+                    sellers.add(user)
+                }
+            }
+            sellers
+        } catch (e: Exception) {
+            emptyList()
         }
     }
 }
