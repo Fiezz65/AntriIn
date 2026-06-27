@@ -33,6 +33,7 @@ import com.example.antriin.utils.formatRupiah
 @Composable
 fun CartItemCard(
     cartItem: CartItem,
+    icon: String,
     onIncreaseClick: () -> Unit,
     onDecreaseClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -58,7 +59,7 @@ fun CartItemCard(
                     .background(Color(0xFFFDECE2)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "🍱", fontSize = 24.sp)
+                Text(text = icon, fontSize = 24.sp)
             }
 
             Spacer(modifier = Modifier.width(12.dp))

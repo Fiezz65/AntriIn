@@ -8,14 +8,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import com.example.antriin.utils.formatMenuNames
 
 class SellerNotificationViewModel(
     private val orderRepository: OrderRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    private val _notifications = MutableStateFlow<List<Pair<String, String>>>(emptyList())
-    val notifications: StateFlow<List<Pair<String, String>>> = _notifications
+    private val _notifications = MutableStateFlow<List<Triple<String, String, Boolean>>>(emptyList())
+    val notifications: StateFlow<List<Triple<String, String, Boolean>>> = _notifications
     
     val unreadCount: StateFlow<Int> = com.example.antriin.utils.NotificationState.sellerUnreadCount
 
@@ -28,12 +29,14 @@ class SellerNotificationViewModel(
             val user = userRepository.getCurrentUser()
             if (user != null) {
                 orderRepository.getSellerOrders(user.uid).collectLatest { orders ->
-                    val notifList = mutableListOf<Pair<String, String>>()
+                    val lastReadTime = orderRepository.getLastReadTime("seller")
+                    val notifList = mutableListOf<Triple<String, String, Boolean>>()
                     orders.forEach { order ->
-                        val itemCount = order.items.sumOf { it.quantity }
+                        val menuNames = order.items.formatMenuNames()
+                        val isUnread = order.timestamp > lastReadTime
                         when (order.status) {
-                            "Menunggu Validasi" -> notifList.add(Pair("Pesanan Baru!", "Pesanan baru dari ${order.buyerName} ($itemCount item, ${order.paymentMethod}) menunggu validasi."))
-                            "Belum Bayar" -> notifList.add(Pair("Menunggu Pembayaran", "Pesanan dari ${order.buyerName} ($itemCount item, ${order.paymentMethod}) belum dibayar."))
+                            "Menunggu Validasi" -> notifList.add(Triple("Pesanan Baru!", "Pesanan baru dari ${order.buyerName} ($menuNames, ${order.paymentMethod}) menunggu validasi.", isUnread))
+                            "Belum Bayar" -> notifList.add(Triple("Menunggu Pembayaran", "Pesanan dari ${order.buyerName} ($menuNames, ${order.paymentMethod}) belum dibayar.", isUnread))
                         }
                     }
                     _notifications.value = notifList.take(20)
@@ -47,22 +50,32 @@ class SellerNotificationViewModel(
         orderRepository.markAsRead("seller")
         com.example.antriin.utils.NotificationState.sellerUnreadCount.value = 0
     }
+
+    fun clearBadge() {
+        com.example.antriin.utils.NotificationState.sellerUnreadCount.value = 0
+    }
     
     private var isListenerStarted = false
 
     fun startGlobalListener(context: android.content.Context) {
         if (isListenerStarted) return
         isListenerStarted = true
+        var isInitialLoad = true
         viewModelScope.launch {
             val user = userRepository.getCurrentUser()
             if (user != null) {
                 orderRepository.getSellerOrders(user.uid).collectLatest { orders ->
+                    val lastReadTime = orderRepository.getLastReadTime("seller")
                     orders.forEach { order ->
                         if ((order.status == "Menunggu Validasi" || order.status == "Belum Bayar") && !com.example.antriin.utils.NotificationState.notifiedOrderIds.contains(order.orderId)) {
                             com.example.antriin.utils.NotificationState.notifiedOrderIds.add(order.orderId)
-                            com.example.antriin.utils.NotificationHelper.showSellerNewOrderNotification(context, order.buyerName)
+                            if (!isInitialLoad || order.timestamp > lastReadTime) {
+                                val menuNames = order.items.formatMenuNames()
+                                com.example.antriin.utils.NotificationHelper.showSellerNewOrderNotification(context, order.buyerName, menuNames, order.paymentMethod)
+                            }
                         }
                     }
+                    isInitialLoad = false
                 }
             }
         }

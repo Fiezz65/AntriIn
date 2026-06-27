@@ -98,7 +98,6 @@ fun CartScreen(
 
     LaunchedEffect(checkoutSuccess) {
         if (checkoutSuccess) {
-            com.example.antriin.utils.NotificationHelper.showStudentCheckoutSuccessNotification(context)
             viewModel.resetCheckoutStatus()
             onNavigate("home")
             Toast.makeText(context, "Pesanan berhasil dibuat!", Toast.LENGTH_SHORT).show()
@@ -200,6 +199,7 @@ fun CartScreen(
                     items(cartItems) { item ->
                         CartItemCard(
                             cartItem = item,
+                            icon = viewModel.getMenuIcon(item.menuId),
                             onIncreaseClick = { viewModel.updateQuantity(item.menuId, item.quantity + 1) },
                             onDecreaseClick = { viewModel.updateQuantity(item.menuId, item.quantity - 1) }
                         )
