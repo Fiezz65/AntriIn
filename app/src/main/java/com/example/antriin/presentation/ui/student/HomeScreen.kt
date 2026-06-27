@@ -9,6 +9,7 @@ import com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel
 import com.example.antriin.presentation.viewmodel.student.CartViewModel
 import com.example.antriin.presentation.viewmodel.student.HomeViewModel
 import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
+import com.example.antriin.presentation.viewmodel.student.StudentNotificationViewModel
 import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
 
 import androidx.compose.foundation.background
@@ -82,7 +83,8 @@ fun HomeScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
     viewModel: HomeViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory),
-    cartViewModel: CartViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
+    cartViewModel: CartViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory),
+    notificationViewModel: StudentNotificationViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val weather by viewModel.weatherInfo.collectAsState()
     val isCrowded by viewModel.isCrowded.collectAsState()
@@ -116,7 +118,8 @@ fun HomeScreen(
     var quantity by remember { mutableStateOf(1) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    val dummyNotificationCount = 3
+    val notifications by notificationViewModel.notifications.collectAsState()
+    val notificationCount by notificationViewModel.unreadCount.collectAsState()
 
     if (showBottomSheet && selectedMenuForNote != null) {
         ModalBottomSheet(
@@ -274,9 +277,9 @@ fun HomeScreen(
                     ) {
                         BadgedBox(
                             badge = {
-                                if (dummyNotificationCount > 0) {
+                                if (notificationCount > 0) {
                                     Badge(containerColor = Color.Red, contentColor = Color.White) {
-                                        Text(text = dummyNotificationCount.toString())
+                                        Text(text = notificationCount.toString())
                                     }
                                 }
                             }

@@ -31,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -48,9 +49,13 @@ import com.example.antriin.presentation.theme.TextGray
 @Composable
 fun SellerNotificationScreen(
     onBackClick: () -> Unit,
-    viewModel: SellerNotificationViewModel = viewModel()
+    viewModel: SellerNotificationViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val notificationList by viewModel.notifications.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.markAsRead()
+    }
 
     Column(
         modifier = Modifier
@@ -89,14 +94,14 @@ fun SellerNotificationScreen(
                         Spacer(modifier = Modifier.width(16.dp))
                         Column {
                             Text(
-                                text = if (index == 0) "Pesanan Baru Masuk!" else "Pembaruan Sistem",
+                                text = notificationList[index].first,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = TextBlack
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = notificationList[index],
+                                text = notificationList[index].second,
                                 fontSize = 12.sp,
                                 color = TextGray,
                                 lineHeight = 18.sp

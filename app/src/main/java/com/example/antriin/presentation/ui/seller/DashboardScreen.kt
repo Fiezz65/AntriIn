@@ -60,17 +60,26 @@ import com.example.antriin.presentation.theme.TextBlack
 import com.example.antriin.presentation.theme.TextGray
 import com.example.antriin.utils.formatRupiah
 
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+
 @Composable
 fun DashboardScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
-    viewModel: DashboardViewModel = viewModel(),
-    notificationViewModel: SellerNotificationViewModel = viewModel()
+    viewModel: DashboardViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory),
+    notificationViewModel: SellerNotificationViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val incomingOrders by viewModel.incomingOrders.collectAsState()
     val portionsSold by viewModel.portionsSold.collectAsState()
     val totalRevenue by viewModel.totalRevenue.collectAsState()
     val notifications by notificationViewModel.notifications.collectAsState()
+    val notificationCount by notificationViewModel.unreadCount.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.startListeningForNewOrders(context)
+    }
 
     val orderFilters = listOf("Semua", "Menunggu", "Diproses", "Siap")
     var selectedFilter by remember { mutableStateOf("Semua") }
@@ -125,9 +134,9 @@ fun DashboardScreen(
                     ) {
                         BadgedBox(
                             badge = {
-                                if (notifications.isNotEmpty()) {
+                                if (notificationCount > 0) {
                                     Badge(containerColor = Color.Red, contentColor = Color.White) {
-                                        Text(text = notifications.size.toString())
+                                        Text(text = notificationCount.toString())
                                     }
                                 }
                             }

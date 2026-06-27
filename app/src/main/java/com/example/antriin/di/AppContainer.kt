@@ -53,7 +53,7 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
     }
 
     override val orderRepository: OrderRepository by lazy {
-        OrderRepoImpl()
+        OrderRepoImpl(context = context)
     }
 
     override val weatherRepository: WeatherRepository by lazy {

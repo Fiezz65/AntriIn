@@ -9,13 +9,18 @@ import com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel
 import com.example.antriin.presentation.viewmodel.student.CartViewModel
 import com.example.antriin.presentation.viewmodel.student.HomeViewModel
 import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
+import com.example.antriin.presentation.viewmodel.student.StudentNotificationViewModel
 import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
 
 import android.app.DownloadManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -50,6 +55,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -77,15 +83,28 @@ import com.example.antriin.utils.formatRupiah
 fun CartScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
-    viewModel: CartViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
+    viewModel: CartViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory),
+    notificationViewModel: StudentNotificationViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val cartItems by viewModel.cartItems.collectAsState()
     val totalPrice by viewModel.totalPrice.collectAsState()
     var paymentMethod by remember { mutableStateOf("Tunai") }
     val context = LocalContext.current
+    val checkoutSuccess by viewModel.checkoutSuccess.collectAsState()
+
+
+    LaunchedEffect(checkoutSuccess) {
+        if (checkoutSuccess) {
+            com.example.antriin.utils.NotificationHelper.showStudentCheckoutSuccessNotification(context)
+            viewModel.resetCheckoutStatus()
+            onNavigate("home")
+            Toast.makeText(context, "Pesanan berhasil dibuat!", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     val dummyQrUrl = ""
-    val dummyNotificationCount = 3
+    val notifications by notificationViewModel.notifications.collectAsState()
+    val notificationCount by notificationViewModel.unreadCount.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -104,7 +123,7 @@ fun CartScreen(
                             Text(text = formatRupiah(totalPrice), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
                         }
                         Button(
-                            onClick = { },
+                            onClick = { viewModel.checkout(paymentMethod) },
                             colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
                             shape = RoundedCornerShape(8.dp)
                         ) {
@@ -148,9 +167,9 @@ fun CartScreen(
                 ) {
                     BadgedBox(
                         badge = {
-                            if (dummyNotificationCount > 0) {
+                            if (notificationCount > 0) {
                                 Badge(containerColor = Color.Red, contentColor = Color.White) {
-                                    Text(text = dummyNotificationCount.toString())
+                                    Text(text = notificationCount.toString())
                                 }
                             }
                         }

@@ -63,11 +63,12 @@ fun HistoryScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
     viewModel: HistoryViewModel = viewModel(),
-    notificationViewModel: SellerNotificationViewModel = viewModel()
+    notificationViewModel: SellerNotificationViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val historyList by viewModel.completedOrders.collectAsState()
     var selectedTab by remember { mutableStateOf("Hari Ini") }
     val notifications by notificationViewModel.notifications.collectAsState()
+    val notificationCount by notificationViewModel.unreadCount.collectAsState()
 
     Scaffold(
         bottomBar = { BottomNavBar(currentRoute = "history", onNavigate = onTabNavigate, isSeller = true) }
@@ -95,9 +96,9 @@ fun HistoryScreen(
                 ) {
                     BadgedBox(
                         badge = {
-                            if (notifications.isNotEmpty()) {
+                            if (notificationCount > 0) {
                                 Badge(containerColor = Color.Red, contentColor = Color.White) {
-                                    Text(text = notifications.size.toString())
+                                    Text(text = notificationCount.toString())
                                 }
                             }
                         }

@@ -21,13 +21,16 @@ class MenuViewModel(
     private val _sellerMenus = MutableStateFlow(MenuState())
     val sellerMenus: StateFlow<MenuState> = _sellerMenus
 
+    private var fetchJob: kotlinx.coroutines.Job? = null
+
     init {
-        loadMenus()
+        refresh()
     }
 
-    private fun loadMenus() {
+    fun refresh() {
         val sellerId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        viewModelScope.launch {
+        fetchJob?.cancel()
+        fetchJob = viewModelScope.launch {
             try {
                 menuRepository.getMenus(sellerId).collect { menus ->
                     _sellerMenus.value = MenuState(menus, System.currentTimeMillis())
