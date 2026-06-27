@@ -1,5 +1,6 @@
 package com.example.antriin.utils
 
+import android.annotation.SuppressLint
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -39,13 +40,14 @@ object NotificationHelper {
         return true
     }
 
+    @SuppressLint("MissingPermission")
     fun showStudentCheckoutSuccessNotification(context: Context) {
         if (!checkNotificationPermission(context)) return
 
         createNotificationChannel(context)
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // Make sure to use a valid icon
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("Pesanan Berhasil Dibuat!")
             .setContentText("Pesanan Anda sedang menunggu validasi penjual.")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -56,6 +58,7 @@ object NotificationHelper {
         }
     }
 
+    @SuppressLint("MissingPermission")
     fun showSellerNewOrderNotification(context: Context, buyerName: String) {
         if (!checkNotificationPermission(context)) return
 
