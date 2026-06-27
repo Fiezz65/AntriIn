@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,9 +51,13 @@ import com.example.antriin.presentation.viewmodel.student.StudentNotificationVie
 @Composable
 fun StudentNotificationScreen(
     onBackClick: () -> Unit,
-    viewModel: StudentNotificationViewModel = viewModel()
+    viewModel: StudentNotificationViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val notifications by viewModel.notifications.collectAsState()
+    
+    LaunchedEffect(Unit) {
+        viewModel.markAsRead()
+    }
 
     Column(
         modifier = Modifier
@@ -91,14 +96,14 @@ fun StudentNotificationScreen(
                         Spacer(modifier = Modifier.width(16.dp))
                         Column {
                             Text(
-                                text = if (index == 0) "Pesanan Siap Diambil!" else "Update Pesanan",
+                                text = notifications[index].first,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = TextBlack
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = notifications[index],
+                                text = notifications[index].second,
                                 fontSize = 12.sp,
                                 color = TextGray,
                                 lineHeight = 18.sp

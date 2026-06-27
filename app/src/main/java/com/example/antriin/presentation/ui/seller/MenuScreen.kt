@@ -92,11 +92,12 @@ fun MenuScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
     viewModel: MenuViewModel = viewModel(factory = ViewModelFactory.Factory),
-    notificationViewModel: SellerNotificationViewModel = viewModel()
+    notificationViewModel: SellerNotificationViewModel = viewModel(factory = ViewModelFactory.Factory)
 ) {
     val menuState by viewModel.sellerMenus.collectAsState()
     val menus = menuState.menus
     val notifications by notificationViewModel.notifications.collectAsState()
+    val notificationCount by notificationViewModel.unreadCount.collectAsState()
     val context = androidx.compose.ui.platform.LocalContext.current
 
     LaunchedEffect(Unit) {
@@ -339,9 +340,9 @@ fun MenuScreen(
                 ) {
                     BadgedBox(
                         badge = {
-                            if (notifications.isNotEmpty()) {
+                            if (notificationCount > 0) {
                                 Badge(containerColor = Color.Red, contentColor = Color.White) {
-                                    Text(text = notifications.size.toString())
+                                    Text(text = notificationCount.toString())
                                 }
                             }
                         }

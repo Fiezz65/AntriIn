@@ -9,6 +9,7 @@ import com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel
 import com.example.antriin.presentation.viewmodel.student.CartViewModel
 import com.example.antriin.presentation.viewmodel.student.HomeViewModel
 import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
+import com.example.antriin.presentation.viewmodel.student.StudentNotificationViewModel
 import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
 
 import androidx.compose.foundation.background
@@ -41,6 +42,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -60,11 +63,14 @@ fun StudentProfileScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
     viewModel: StudentProfileViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory),
-    cartViewModel: CartViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
+    cartViewModel: CartViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory),
+    notificationViewModel: StudentNotificationViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val user by viewModel.userProfile.collectAsState()
     val cartItems by cartViewModel.cartItems.collectAsState()
-    val dummyNotificationCount = 3
+    val showLogoutDialog = remember { mutableStateOf(false) }
+    val notifications by notificationViewModel.notifications.collectAsState()
+    val notificationCount by notificationViewModel.unreadCount.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -100,9 +106,9 @@ fun StudentProfileScreen(
                 ) {
                     BadgedBox(
                         badge = {
-                            if (dummyNotificationCount > 0) {
+                            if (notificationCount > 0) {
                                 Badge(containerColor = Color.Red, contentColor = Color.White) {
-                                    Text(text = dummyNotificationCount.toString())
+                                    Text(text = notificationCount.toString())
                                 }
                             }
                         }

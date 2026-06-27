@@ -11,6 +11,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.antriin.R
+import kotlinx.coroutines.flow.MutableStateFlow
+
+object NotificationState {
+    val studentUnreadCount = MutableStateFlow(0)
+    val sellerUnreadCount = MutableStateFlow(0)
+}
 
 object NotificationHelper {
 

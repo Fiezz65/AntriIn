@@ -10,10 +10,14 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import android.content.Context
 
 class OrderRepoImpl(
-    private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
+    private val database: FirebaseDatabase = FirebaseDatabase.getInstance(),
+    private val context: Context
 ) : OrderRepository {
+    private val prefs = context.getSharedPreferences("antriin_prefs", Context.MODE_PRIVATE)
+    
     override suspend fun createOrder(order: Order): Result<Boolean> {
         return try {
             val ref = database.getReference("Orders")
@@ -32,14 +36,10 @@ class OrderRepoImpl(
         val ref = database.getReference("Orders")
         val query = ref.orderByChild("sellerId").equalTo(sellerId)
         
-        // We only want to notify for TRULY new orders.
-        // We record the timestamp when we start listening.
-        val listenStartTime = System.currentTimeMillis()
-
         val listener = object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 val order = snapshot.getValue(Order::class.java)
-                if (order != null && order.timestamp > listenStartTime) {
+                if (order != null && (order.status == "Belum Bayar" || order.status == "Menunggu Validasi")) {
                     trySend(order)
                 }
             }
@@ -48,11 +48,82 @@ class OrderRepoImpl(
             override fun onChildRemoved(snapshot: DataSnapshot) {}
             override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
             override fun onCancelled(error: DatabaseError) {
-                close(error.toException())
+                close()
             }
         }
 
         query.addChildEventListener(listener)
         awaitClose { query.removeEventListener(listener) }
+    }
+
+    override fun getSellerOrders(sellerId: String): Flow<List<Order>> = callbackFlow {
+        val ref = database.getReference("Orders")
+        val query = ref.orderByChild("sellerId").equalTo(sellerId)
+
+        val listener = object : com.google.firebase.database.ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val orders = mutableListOf<Order>()
+                for (child in snapshot.children) {
+                    val order = child.getValue(Order::class.java)
+                    if (order != null) {
+                        orders.add(order)
+                    }
+                }
+                orders.sortByDescending { it.timestamp }
+                trySend(orders)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                close()
+            }
+        }
+
+        query.addValueEventListener(listener)
+        awaitClose { query.removeEventListener(listener) }
+    }
+
+    override fun getStudentOrders(studentId: String): Flow<List<Order>> = callbackFlow {
+        val ref = database.getReference("Orders")
+        val query = ref.orderByChild("buyerId").equalTo(studentId)
+
+        val listener = object : com.google.firebase.database.ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val orders = mutableListOf<Order>()
+                for (child in snapshot.children) {
+                    val order = child.getValue(Order::class.java)
+                    if (order != null) {
+                        orders.add(order)
+                    }
+                }
+                orders.sortByDescending { it.timestamp }
+                trySend(orders)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                close()
+            }
+        }
+
+        query.addValueEventListener(listener)
+        awaitClose { query.removeEventListener(listener) }
+    }
+
+    override fun getUnreadCount(orders: List<Order>, role: String): Int {
+        val lastReadTime = prefs.getLong("last_read_time_$role", 0L)
+        return orders.count { it.timestamp > lastReadTime }
+    }
+
+    override fun markAsRead(role: String) {
+        prefs.edit().putLong("last_read_time_$role", System.currentTimeMillis()).apply()
+    }
+
+    override suspend fun updateOrderStatus(orderId: String, newStatus: String): Result<Boolean> {
+        return try {
+            val ref = database.getReference("Orders").child(orderId)
+            ref.child("status").setValue(newStatus).await()
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

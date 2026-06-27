@@ -9,6 +9,7 @@ import com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel
 import com.example.antriin.presentation.viewmodel.student.CartViewModel
 import com.example.antriin.presentation.viewmodel.student.HomeViewModel
 import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
+import com.example.antriin.presentation.viewmodel.student.StudentNotificationViewModel
 import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
 
 import androidx.compose.foundation.background
@@ -59,11 +60,13 @@ fun LiveTrackingScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
     viewModel: LiveTrackingViewModel = viewModel(),
+    notificationViewModel: StudentNotificationViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory),
     cartViewModel: CartViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val queueList by viewModel.queueList.collectAsState()
     val cartItems by cartViewModel.cartItems.collectAsState()
-    val dummyNotificationCount = 3
+    val notifications by notificationViewModel.notifications.collectAsState()
+    val notificationCount by notificationViewModel.unreadCount.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -99,9 +102,9 @@ fun LiveTrackingScreen(
                     ) {
                         BadgedBox(
                             badge = {
-                                if (dummyNotificationCount > 0) {
+                                if (notificationCount > 0) {
                                     Badge(containerColor = Color.Red, contentColor = Color.White) {
-                                        Text(text = dummyNotificationCount.toString())
+                                        Text(text = notificationCount.toString())
                                     }
                                 }
                             }

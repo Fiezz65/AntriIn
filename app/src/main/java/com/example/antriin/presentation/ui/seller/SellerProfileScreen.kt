@@ -78,11 +78,12 @@ fun SellerProfileScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
     viewModel: SellerProfileViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory),
-    notificationViewModel: SellerNotificationViewModel = viewModel()
+    notificationViewModel: SellerNotificationViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val user by viewModel.sellerProfile.collectAsState()
     val qrUri by viewModel.qrCodeUri.collectAsState()
     val notifications by notificationViewModel.notifications.collectAsState()
+    val notificationCount by notificationViewModel.unreadCount.collectAsState()
 
     var showEditSheet by remember { mutableStateOf(false) }
     var editCanteenName by remember { mutableStateOf("") }
@@ -172,9 +173,9 @@ fun SellerProfileScreen(
                 ) {
                     BadgedBox(
                         badge = {
-                            if (notifications.isNotEmpty()) {
+                            if (notificationCount > 0) {
                                 Badge(containerColor = Color.Red, contentColor = Color.White) {
-                                    Text(text = notifications.size.toString())
+                                    Text(text = notificationCount.toString())
                                 }
                             }
                         }

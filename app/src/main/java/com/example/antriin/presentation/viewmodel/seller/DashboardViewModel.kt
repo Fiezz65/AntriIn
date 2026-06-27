@@ -28,7 +28,20 @@ class DashboardViewModel(
     val totalRevenue: StateFlow<Int> = _totalRevenue
 
     init {
-        loadDummyOrders() // Keep this for now for UI visualization, or replace it if you have full implementation
+        loadOrders()
+    }
+
+    private fun loadOrders() {
+        viewModelScope.launch {
+            val user = userRepository.getCurrentUser()
+            if (user != null && user.role == "penjual") {
+                orderRepository.getSellerOrders(user.uid).collectLatest { orders ->
+                    _incomingOrders.value = orders.filter { 
+                        it.status == "Belum Bayar" || it.status == "Menunggu Validasi" || it.status == "Diproses" || it.status == "Siap Diambil" 
+                    }
+                }
+            }
+        }
     }
 
     fun startListeningForNewOrders(context: Context) {
@@ -36,34 +49,9 @@ class DashboardViewModel(
             val user = userRepository.getCurrentUser()
             if (user != null && user.role == "penjual") {
                 orderRepository.listenForNewOrders(user.uid).collectLatest { newOrder ->
-                    // Trigger local notification when a TRULY new order arrives
                     NotificationHelper.showSellerNewOrderNotification(context, newOrder.buyerName)
-                    
-                    // Add it to the local list (prepend)
-                    val currentList = _incomingOrders.value.toMutableList()
-                    // Avoid duplicates if any
-                    if (currentList.none { it.orderId == newOrder.orderId }) {
-                        currentList.add(0, newOrder)
-                        _incomingOrders.value = currentList
-                    }
                 }
             }
         }
-    }
-
-    private fun loadDummyOrders() {
-        _incomingOrders.value = listOf(
-            Order(
-                orderId = "#ANT-001",
-                buyerName = "Budi Antoro",
-                paymentMethod = "Tunai",
-                totalPrice = 45000,
-                status = "Belum Bayar",
-                items = listOf(
-                    OrderItem(menuId = "1", menuName = "Nasi Goreng Spesial", quantity = 2, price = 40000, notes = "Yang satu pedes, yang satu jangan pake kecap"),
-                    OrderItem(menuId = "2", menuName = "Es Teh Manis", quantity = 1, price = 5000, notes = "")
-                )
-            )
-        )
     }
 }

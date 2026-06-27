@@ -9,6 +9,7 @@ import com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel
 import com.example.antriin.presentation.viewmodel.student.CartViewModel
 import com.example.antriin.presentation.viewmodel.student.HomeViewModel
 import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
+import com.example.antriin.presentation.viewmodel.student.StudentNotificationViewModel
 import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
 
 import android.app.DownloadManager
@@ -82,7 +83,8 @@ import com.example.antriin.utils.formatRupiah
 fun CartScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
-    viewModel: CartViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
+    viewModel: CartViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory),
+    notificationViewModel: StudentNotificationViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val cartItems by viewModel.cartItems.collectAsState()
     val totalPrice by viewModel.totalPrice.collectAsState()
@@ -101,7 +103,8 @@ fun CartScreen(
     }
 
     val dummyQrUrl = ""
-    val dummyNotificationCount = 3
+    val notifications by notificationViewModel.notifications.collectAsState()
+    val notificationCount by notificationViewModel.unreadCount.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -164,9 +167,9 @@ fun CartScreen(
                 ) {
                     BadgedBox(
                         badge = {
-                            if (dummyNotificationCount > 0) {
+                            if (notificationCount > 0) {
                                 Badge(containerColor = Color.Red, contentColor = Color.White) {
-                                    Text(text = dummyNotificationCount.toString())
+                                    Text(text = notificationCount.toString())
                                 }
                             }
                         }

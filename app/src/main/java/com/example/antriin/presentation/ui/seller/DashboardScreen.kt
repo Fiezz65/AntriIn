@@ -68,12 +68,13 @@ fun DashboardScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
     viewModel: DashboardViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory),
-    notificationViewModel: SellerNotificationViewModel = viewModel()
+    notificationViewModel: SellerNotificationViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val incomingOrders by viewModel.incomingOrders.collectAsState()
     val portionsSold by viewModel.portionsSold.collectAsState()
     val totalRevenue by viewModel.totalRevenue.collectAsState()
     val notifications by notificationViewModel.notifications.collectAsState()
+    val notificationCount by notificationViewModel.unreadCount.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
@@ -133,9 +134,9 @@ fun DashboardScreen(
                     ) {
                         BadgedBox(
                             badge = {
-                                if (notifications.isNotEmpty()) {
+                                if (notificationCount > 0) {
                                     Badge(containerColor = Color.Red, contentColor = Color.White) {
-                                        Text(text = notifications.size.toString())
+                                        Text(text = notificationCount.toString())
                                     }
                                 }
                             }

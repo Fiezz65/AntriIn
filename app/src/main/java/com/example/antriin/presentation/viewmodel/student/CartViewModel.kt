@@ -44,7 +44,6 @@ class CartViewModel(
             ) { cart, menus ->
                 Pair(cart, menus)
             }.collectLatest { (cart, menus) ->
-                // Filter out items that are sold out or removed from firebase, but don't delete from local DB aggressively
                 val validCartItems = mutableListOf<CartItem>()
                 for (item in cart) {
                     val firebaseMenu = menus.find { it.id == item.menuId }
