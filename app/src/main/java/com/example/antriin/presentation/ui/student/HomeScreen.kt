@@ -140,6 +140,7 @@ fun HomeScreen(
     }
 
     var showBottomSheet by remember { mutableStateOf(false) }
+    var showKantinWarningDialog by remember { mutableStateOf(false) }
     var selectedMenuForNote by remember { mutableStateOf<Menu?>(null) }
     var noteText by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf(1) }
@@ -147,6 +148,22 @@ fun HomeScreen(
 
     val notifications by notificationViewModel.notifications.collectAsState()
     val notificationCount by notificationViewModel.unreadCount.collectAsState()
+
+    if (showKantinWarningDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showKantinWarningDialog = false },
+            title = { Text("Beda Kantin", fontWeight = FontWeight.Bold, color = TextBlack) },
+            text = { Text("Kamu hanya bisa memesan dari 1 kantin dalam 1 pesanan. Selesaikan pesanan sebelumnya atau kosongkan keranjang terlebih dahulu.", color = TextGray) },
+            containerColor = Color.White,
+            confirmButton = {
+                androidx.compose.material3.TextButton(
+                    onClick = { showKantinWarningDialog = false }
+                ) {
+                    Text("Mengerti", color = PrimaryOrange, fontWeight = FontWeight.Bold)
+                }
+            }
+        )
+    }
 
     if (showBottomSheet && selectedMenuForNote != null) {
         ModalBottomSheet(
@@ -233,6 +250,16 @@ fun HomeScreen(
                     PrimaryButton(
                         text = "Tambah - ${formatRupiah(totalItemPrice)}",
                         onClick = {
+                            val currentCart = cartItems
+                            if (currentCart.isNotEmpty()) {
+                                val firstItemId = currentCart.first().menuId
+                                val firstItemMenu = menuList.find { it.id == firstItemId }
+                                if (firstItemMenu != null && firstItemMenu.sellerId != menu.sellerId) {
+                                    showKantinWarningDialog = true
+                                    return@PrimaryButton
+                                }
+                            }
+                            
                             cartViewModel.addToCart(menu, quantity, noteText)
                             showBottomSheet = false
                             noteText = ""

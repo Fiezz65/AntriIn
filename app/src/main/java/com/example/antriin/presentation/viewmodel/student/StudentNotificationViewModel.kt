@@ -31,24 +31,35 @@ class StudentNotificationViewModel(
                 orderRepository.getStudentOrders(user.uid).collectLatest { orders ->
                     val lastReadTime = orderRepository.getLastReadTime("student")
                     val notifList = mutableListOf<Triple<String, String, Boolean>>()
+                    
+                    val calendar = java.util.Calendar.getInstance()
+                    val currentYear = calendar.get(java.util.Calendar.YEAR)
+                    val currentDay = calendar.get(java.util.Calendar.DAY_OF_YEAR)
+
                     orders.forEach { order ->
-                        val menuNames = order.items.formatMenuNames()
-                        val isUnread = order.lastUpdated > lastReadTime
-                        when (order.status) {
-                            "Belum Bayar", "Menunggu Validasi" -> {
-                                if (order.paymentMethod == "Tunai") {
-                                    notifList.add(Triple("Menunggu Pembayaran", "Pesanan $menuNames Anda berhasil dibuat. Silakan segera ke kantin untuk membayar secara Tunai agar pesanan divalidasi.", isUnread))
-                                } else {
-                                    notifList.add(Triple("Menunggu Pembayaran", "Pesanan $menuNames Anda berhasil dibuat. Silakan selesaikan pembayaran via ${order.paymentMethod}.", isUnread))
+                        calendar.timeInMillis = order.timestamp
+                        val isToday = calendar.get(java.util.Calendar.YEAR) == currentYear && 
+                                      calendar.get(java.util.Calendar.DAY_OF_YEAR) == currentDay
+                                      
+                        if (isToday) {
+                            val menuNames = order.items.formatMenuNames()
+                            val isUnread = order.lastUpdated > lastReadTime
+                            when (order.status) {
+                                "Belum Bayar", "Menunggu Validasi" -> {
+                                    if (order.paymentMethod == "Tunai") {
+                                        notifList.add(Triple("Menunggu Pembayaran", "Pesanan $menuNames Anda berhasil dibuat. Silakan segera ke kantin untuk membayar secara Tunai agar pesanan divalidasi.", isUnread))
+                                    } else {
+                                        notifList.add(Triple("Menunggu Pembayaran", "Pesanan $menuNames Anda berhasil dibuat. Silakan selesaikan pembayaran via ${order.paymentMethod}.", isUnread))
+                                    }
                                 }
+                                "Diproses" -> notifList.add(Triple("Pesanan Diproses", "Hore! Pesanan $menuNames Anda sedang diproses oleh penjual.", isUnread))
+                                "Siap Diambil", "Selesai" -> notifList.add(Triple("Pesanan Siap Diambil!", "Pesanan $menuNames Anda selesai diproses dan siap diambil. Silakan ambil di Kantin!", isUnread))
+                                "Dibatalkan" -> notifList.add(Triple("Pesanan Dibatalkan", "Pesanan $menuNames Anda dibatalkan oleh penjual.", isUnread))
                             }
-                            "Diproses" -> notifList.add(Triple("Pesanan Diproses", "Hore! Pesanan $menuNames Anda sedang diproses oleh penjual.", isUnread))
-                            "Siap Diambil", "Selesai" -> notifList.add(Triple("Pesanan Siap Diambil!", "Pesanan $menuNames Anda selesai diproses dan siap diambil. Silakan ambil di Kantin!", isUnread))
-                            "Dibatalkan" -> notifList.add(Triple("Pesanan Dibatalkan", "Pesanan $menuNames Anda dibatalkan oleh penjual.", isUnread))
                         }
                     }
                     _notifications.value = notifList.take(20)
-                    com.example.antriin.utils.NotificationState.studentUnreadCount.value = orderRepository.getUnreadCount(orders, "student")
+                    com.example.antriin.utils.NotificationState.studentUnreadCount.value = notifList.count { it.third }
                 }
             }
         }
@@ -78,34 +89,44 @@ class StudentNotificationViewModel(
             val user = userRepository.getCurrentUser()
             if (user != null) {
                 orderRepository.getStudentOrders(user.uid).collectLatest { orders ->
+                    val calendar = java.util.Calendar.getInstance()
+                    val currentYear = calendar.get(java.util.Calendar.YEAR)
+                    val currentDay = calendar.get(java.util.Calendar.DAY_OF_YEAR)
+
                     orders.forEach { order ->
-                        val statusKey = "${order.orderId}_${order.status}"
-                        if (!com.example.antriin.utils.NotificationState.notifiedStudentOrderStatuses.contains(statusKey)) {
-                            com.example.antriin.utils.NotificationState.notifiedStudentOrderStatuses.add(statusKey)
-                            
-                            val lastReadTime = orderRepository.getLastReadTime("student")
-                            if (!isInitialLoad || order.lastUpdated > lastReadTime) {
-                                val missedSiapDiambil = order.status == "Selesai" && !com.example.antriin.utils.NotificationState.notifiedStudentOrderStatuses.contains("${order.orderId}_Siap Diambil")
-                                if (order.status != "Selesai" || missedSiapDiambil) {
-                                    if (missedSiapDiambil) {
-                                        com.example.antriin.utils.NotificationState.notifiedStudentOrderStatuses.add("${order.orderId}_Siap Diambil")
+                        calendar.timeInMillis = order.timestamp
+                        val isToday = calendar.get(java.util.Calendar.YEAR) == currentYear && 
+                                      calendar.get(java.util.Calendar.DAY_OF_YEAR) == currentDay
+
+                        if (isToday) {
+                            val statusKey = "${order.orderId}_${order.status}"
+                            if (!com.example.antriin.utils.NotificationState.notifiedStudentOrderStatuses.contains(statusKey)) {
+                                com.example.antriin.utils.NotificationState.notifiedStudentOrderStatuses.add(statusKey)
+                                
+                                val lastReadTime = orderRepository.getLastReadTime("student")
+                                if (!isInitialLoad || order.lastUpdated > lastReadTime) {
+                                    val missedSiapDiambil = order.status == "Selesai" && !com.example.antriin.utils.NotificationState.notifiedStudentOrderStatuses.contains("${order.orderId}_Siap Diambil")
+                                    if (order.status != "Selesai" || missedSiapDiambil) {
+                                        if (missedSiapDiambil) {
+                                            com.example.antriin.utils.NotificationState.notifiedStudentOrderStatuses.add("${order.orderId}_Siap Diambil")
+                                        }
+                                        val menuNames = order.items.formatMenuNames()
+                                        val title = when (order.status) {
+                                            "Menunggu Validasi", "Belum Bayar" -> "Pesanan Dibuat"
+                                            "Diproses" -> "Pesanan Diproses"
+                                            "Siap Diambil", "Selesai" -> "Pesanan Siap Diambil!"
+                                            "Dibatalkan" -> "Pesanan Dibatalkan"
+                                            else -> "Update Pesanan"
+                                        }
+                                        val msg = when (order.status) {
+                                            "Menunggu Validasi", "Belum Bayar" -> "Pesanan $menuNames Anda sedang menunggu proses."
+                                            "Diproses" -> "Hore! Pesanan $menuNames Anda sedang diproses oleh penjual."
+                                            "Siap Diambil", "Selesai" -> "Pesanan $menuNames Anda selesai diproses dan siap diambil. Silakan ambil di Kantin!"
+                                            "Dibatalkan" -> "Pesanan $menuNames Anda dibatalkan oleh penjual."
+                                            else -> "Status pesanan $menuNames Anda telah diperbarui."
+                                        }
+                                        com.example.antriin.utils.NotificationHelper.showStudentOrderStatusNotification(context, title, msg)
                                     }
-                                    val menuNames = order.items.formatMenuNames()
-                                    val title = when (order.status) {
-                                        "Menunggu Validasi", "Belum Bayar" -> "Pesanan Dibuat"
-                                        "Diproses" -> "Pesanan Diproses"
-                                        "Siap Diambil", "Selesai" -> "Pesanan Siap Diambil!"
-                                        "Dibatalkan" -> "Pesanan Dibatalkan"
-                                        else -> "Update Pesanan"
-                                    }
-                                    val msg = when (order.status) {
-                                        "Menunggu Validasi", "Belum Bayar" -> "Pesanan $menuNames Anda sedang menunggu proses."
-                                        "Diproses" -> "Hore! Pesanan $menuNames Anda sedang diproses oleh penjual."
-                                        "Siap Diambil", "Selesai" -> "Pesanan $menuNames Anda selesai diproses dan siap diambil. Silakan ambil di Kantin!"
-                                        "Dibatalkan" -> "Pesanan $menuNames Anda dibatalkan oleh penjual."
-                                        else -> "Status pesanan $menuNames Anda telah diperbarui."
-                                    }
-                                    com.example.antriin.utils.NotificationHelper.showStudentOrderStatusNotification(context, title, msg)
                                 }
                             }
                         }

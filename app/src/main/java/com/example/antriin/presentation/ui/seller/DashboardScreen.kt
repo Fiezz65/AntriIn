@@ -79,6 +79,7 @@ fun DashboardScreen(
 
     LaunchedEffect(Unit) {
         notificationViewModel.startGlobalListener(context)
+        viewModel.refresh()
     }
 
     val orderFilters = listOf("Semua", "Menunggu", "Diproses", "Siap")

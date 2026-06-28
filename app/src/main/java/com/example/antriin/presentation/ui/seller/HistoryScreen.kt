@@ -62,17 +62,17 @@ import com.example.antriin.utils.formatRupiah
 fun HistoryScreen(
     onNavigate: (String) -> Unit,
     onTabNavigate: (String) -> Unit,
-    viewModel: HistoryViewModel = viewModel(),
+    viewModel: HistoryViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory),
     notificationViewModel: SellerNotificationViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val historyList by viewModel.completedOrders.collectAsState()
-    var selectedTab by remember { mutableStateOf("Hari Ini") }
     val notifications by notificationViewModel.notifications.collectAsState()
     val notificationCount by notificationViewModel.unreadCount.collectAsState()
 
     val context = androidx.compose.ui.platform.LocalContext.current
     androidx.compose.runtime.LaunchedEffect(Unit) {
         notificationViewModel.startGlobalListener(context)
+        viewModel.refresh()
     }
 
     Scaffold(
@@ -114,29 +114,8 @@ fun HistoryScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                val tabs = listOf("Hari Ini", "Minggu Ini", "Bulan Ini")
-                tabs.forEach { tab ->
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                color = if (selectedTab == tab) PrimaryOrange else Color.White,
-                                shape = RoundedCornerShape(16.dp)
-                            )
-                            .clickable { selectedTab = tab }
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        Text(
-                            text = tab,
-                            color = if (selectedTab == tab) Color.White else TextGray,
-                            fontSize = 12.sp,
-                            fontWeight = if (selectedTab == tab) FontWeight.Bold else FontWeight.Normal
-                        )
-                    }
-                }
-            }
-
+            Text(text = "Riwayat Hari Ini", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
+            Text(text = "Daftar pesanan yang telah diselesaikan hari ini.", fontSize = 14.sp, color = TextGray)
             Spacer(modifier = Modifier.height(16.dp))
 
             if (historyList.isEmpty()) {
@@ -157,8 +136,14 @@ fun HistoryScreen(
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text(text = order.buyerName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextBlack)
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
+                                Text(
+                                    text = order.buyerName, 
+                                    fontSize = 16.sp, 
+                                    fontWeight = FontWeight.Bold, 
+                                    color = TextBlack,
+                                    modifier = Modifier.weight(1f).padding(end = 8.dp)
+                                )
                                 Text(
                                     text = "Selesai",
                                     fontSize = 12.sp,
@@ -168,7 +153,8 @@ fun HistoryScreen(
                                         .padding(horizontal = 8.dp, vertical = 4.dp)
                                 )
                             }
-                            Text(text = "${order.orderId} 12:30 PM", fontSize = 12.sp, color = TextGray)
+                            val formattedDate = java.text.SimpleDateFormat("dd MMM yyyy, HH:mm", java.util.Locale("id", "ID")).format(java.util.Date(order.timestamp))
+                            Text(text = formattedDate, fontSize = 12.sp, color = TextGray)
 
                             Spacer(modifier = Modifier.height(12.dp))
 
@@ -181,15 +167,7 @@ fun HistoryScreen(
                                         Text(text = "${item.quantity}x ${item.menuName}", fontSize = 14.sp, color = TextBlack)
                                         Text(text = formatRupiah(item.price * item.quantity), fontSize = 14.sp, color = TextBlack)
                                     }
-                                    if (item.notes.isNotEmpty()) {
-                                        Text(
-                                            text = "Catatan: ${item.notes}",
-                                            fontSize = 12.sp,
-                                            fontStyle = FontStyle.Italic,
-                                            color = PrimaryOrange,
-                                            modifier = Modifier.padding(top = 2.dp, start = 20.dp, bottom = 4.dp)
-                                        )
-                                    }
+
                                     Spacer(modifier = Modifier.height(4.dp))
                                 }
                             }

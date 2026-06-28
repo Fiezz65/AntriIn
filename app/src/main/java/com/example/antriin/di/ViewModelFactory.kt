@@ -86,5 +86,12 @@ object ViewModelFactory {
                 userRepository = application.container.userRepository
             )
         }
+        initializer {
+            val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AntriInApplication)
+            com.example.antriin.presentation.viewmodel.seller.HistoryViewModel(
+                orderRepository = application.container.orderRepository,
+                userRepository = application.container.userRepository
+            )
+        }
     }
 }
