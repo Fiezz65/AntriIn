@@ -1,16 +1,7 @@
 package com.example.antriin.presentation.ui.seller
 
-import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
-import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
-import com.example.antriin.presentation.viewmodel.seller.HistoryViewModel
 import com.example.antriin.presentation.viewmodel.seller.MenuViewModel
 import com.example.antriin.presentation.viewmodel.seller.SellerNotificationViewModel
-import com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel
-import com.example.antriin.presentation.viewmodel.student.CartViewModel
-import com.example.antriin.presentation.viewmodel.student.HomeViewModel
-import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
-import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,7 +16,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -96,7 +86,6 @@ fun MenuScreen(
 ) {
     val menuState by viewModel.sellerMenus.collectAsState()
     val menus = menuState.menus
-    val notifications by notificationViewModel.notifications.collectAsState()
     val notificationCount by notificationViewModel.unreadCount.collectAsState()
     val context = androidx.compose.ui.platform.LocalContext.current
 
@@ -185,7 +174,7 @@ fun MenuScreen(
                     expanded = expandedCategory,
                     onExpandedChange = { expandedCategory = !expandedCategory }
                 ) {
-                    Column(modifier = Modifier.fillMaxWidth().menuAnchor()) {
+                    Column(modifier = Modifier.fillMaxWidth().menuAnchor(androidx.compose.material3.ExposedDropdownMenuAnchorType.PrimaryNotEditable)) {
                         Text(
                             text = "Kategori",
                             fontSize = 14.sp,

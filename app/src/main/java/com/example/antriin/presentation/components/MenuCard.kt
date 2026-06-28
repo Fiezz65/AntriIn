@@ -11,14 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,10 +35,10 @@ import com.example.antriin.utils.formatRupiah
 @Composable
 fun MenuCard(
     menu: Menu,
-    cartQuantity: Int = 0,
     onAddClick: () -> Unit,
-    onQuantityChange: (Int) -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    cartQuantity: Int = 0,
+    onQuantityChange: (Int) -> Unit = {}
 ) {
     val isClosed = !menu.isCanteenOpen
 

@@ -6,7 +6,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-
 import com.example.antriin.domain.repository.CartRepository
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch

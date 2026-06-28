@@ -1,15 +1,7 @@
 package com.example.antriin.presentation.ui.seller
 
-import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
-import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
-import com.example.antriin.presentation.viewmodel.seller.HistoryViewModel
-import com.example.antriin.presentation.viewmodel.seller.MenuViewModel
 import com.example.antriin.presentation.viewmodel.seller.SellerNotificationViewModel
 import com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel
-import com.example.antriin.presentation.viewmodel.student.CartViewModel
-import com.example.antriin.presentation.viewmodel.student.HomeViewModel
-import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
-import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -56,7 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,7 +69,7 @@ fun SellerProfileScreen(
     notificationViewModel: SellerNotificationViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val user by viewModel.sellerProfile.collectAsState()
-    val notifications by notificationViewModel.notifications.collectAsState()
+
     val notificationCount by notificationViewModel.unreadCount.collectAsState()
     
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -105,10 +96,10 @@ fun SellerProfileScreen(
         isOvoChecked = info.contains("OVO", ignoreCase = true)
         
         val parts = info.split(" - ")
-        if (parts.size == 2) {
-            editPaymentNumber = parts[1]
+        editPaymentNumber = if (parts.size == 2) {
+            parts[1]
         } else {
-            editPaymentNumber = info.replace(Regex("[^0-9]"), "")
+            info.replace(Regex("[^0-9]"), "")
         }
     }
 

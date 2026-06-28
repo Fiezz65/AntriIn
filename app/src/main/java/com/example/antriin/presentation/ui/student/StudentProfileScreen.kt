@@ -1,17 +1,8 @@
 package com.example.antriin.presentation.ui.student
 
-import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
-import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
-import com.example.antriin.presentation.viewmodel.seller.HistoryViewModel
-import com.example.antriin.presentation.viewmodel.seller.MenuViewModel
-import com.example.antriin.presentation.viewmodel.seller.SellerNotificationViewModel
-import com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel
 import com.example.antriin.presentation.viewmodel.student.CartViewModel
-import com.example.antriin.presentation.viewmodel.student.HomeViewModel
-import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
 import com.example.antriin.presentation.viewmodel.student.StudentNotificationViewModel
 import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,8 +33,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -68,8 +57,7 @@ fun StudentProfileScreen(
 ) {
     val user by viewModel.userProfile.collectAsState()
     val cartItems by cartViewModel.cartItems.collectAsState()
-    val showLogoutDialog = remember { mutableStateOf(false) }
-    val notifications by notificationViewModel.notifications.collectAsState()
+
     val notificationCount by notificationViewModel.unreadCount.collectAsState()
 
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -188,4 +176,3 @@ fun StudentProfileScreen(
         }
     }
 }
-

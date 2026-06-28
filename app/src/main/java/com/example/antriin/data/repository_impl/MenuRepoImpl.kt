@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 class MenuRepoImpl(
-    private val database: FirebaseDatabase
+    database: FirebaseDatabase
 ) : MenuRepository {
 
     private val menusRef = database.getReference("menus")

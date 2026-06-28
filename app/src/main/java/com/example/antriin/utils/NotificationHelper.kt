@@ -48,25 +48,7 @@ object NotificationHelper {
         return true
     }
 
-    @SuppressLint("MissingPermission")
-    fun showStudentCheckoutSuccessNotification(context: Context) {
-        if (!checkNotificationPermission(context)) return
 
-        createNotificationChannel(context)
-
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("Pesanan Berhasil Dibuat!")
-            .setContentText("Pesanan Anda sedang menunggu validasi penjual.")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
-            .setAutoCancel(true)
-
-        with(NotificationManagerCompat.from(context)) {
-            notify(System.currentTimeMillis().toInt(), builder.build())
-        }
-    }
-    
     @SuppressLint("MissingPermission")
     fun showStudentOrderStatusNotification(context: Context, title: String, message: String) {
         if (!checkNotificationPermission(context)) return

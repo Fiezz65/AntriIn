@@ -1,16 +1,6 @@
-﻿package com.example.antriin.presentation.ui.auth
+package com.example.antriin.presentation.ui.auth
 
 import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
-import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
-import com.example.antriin.presentation.viewmodel.seller.HistoryViewModel
-import com.example.antriin.presentation.viewmodel.seller.MenuViewModel
-import com.example.antriin.presentation.viewmodel.seller.SellerNotificationViewModel
-import com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel
-import com.example.antriin.presentation.viewmodel.student.CartViewModel
-import com.example.antriin.presentation.viewmodel.student.HomeViewModel
-import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
-import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
-
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,7 +21,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -140,7 +130,7 @@ fun LoginScreen(
                     fontWeight = FontWeight.Bold,
                     color = TextBlack
                 )
-                Divider(
+                HorizontalDivider(
                     color = PrimaryOrange,
                     thickness = 2.dp,
                     modifier = Modifier
@@ -158,7 +148,7 @@ fun LoginScreen(
                     fontWeight = FontWeight.Normal,
                     color = TextGray
                 )
-                Divider(
+                HorizontalDivider(
                     color = Color.Transparent,
                     thickness = 2.dp,
                     modifier = Modifier
@@ -205,4 +195,3 @@ fun LoginScreen(
         }
     }
 }
-

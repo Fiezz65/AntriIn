@@ -2,7 +2,6 @@ package com.example.antriin.presentation.viewmodel.student
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.antriin.domain.model.Menu
 import com.example.antriin.domain.model.WeatherInfo
 import com.example.antriin.domain.repository.MenuRepository
 import com.example.antriin.domain.repository.UserRepository
@@ -13,9 +12,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-
 import com.example.antriin.presentation.viewmodel.seller.MenuState
-
 import com.example.antriin.domain.repository.OrderRepository
 
 class HomeViewModel(
@@ -109,6 +106,7 @@ class HomeViewModel(
                                 _menuList.value = MenuState(combinedMenus, System.currentTimeMillis())
                             }
                         } catch (e: Exception) {
+                            e.printStackTrace()
                         }
                     }
 
@@ -144,6 +142,7 @@ class HomeViewModel(
                 val info = weatherRepository.getCurrentWeather(city)
                 _weatherInfo.value = info
             } catch (e: Exception) {
+                e.printStackTrace()
                 _weatherInfo.value = WeatherInfo("??°C", "Koneksi bermasalah", city)
             }
         }

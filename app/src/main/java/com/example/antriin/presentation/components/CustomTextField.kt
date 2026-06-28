@@ -35,10 +35,10 @@ fun CustomTextField(
     onValueChange: (String) -> Unit,
     label: String,
     placeholder: String,
+    modifier: Modifier = Modifier,
     leadingIcon: ImageVector? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
-    modifier: Modifier = Modifier,
     supportingText: @Composable (() -> Unit)? = null
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -82,8 +82,8 @@ fun PasswordTextField(
     leadingIcon: ImageVector,
     visibilityIcon: ImageVector,
     visibilityOffIcon: ImageVector,
-    imeAction: ImeAction = ImeAction.Done,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    imeAction: ImeAction = ImeAction.Done
 ) {
     var isPasswordVisible by remember { mutableStateOf(false) }
 

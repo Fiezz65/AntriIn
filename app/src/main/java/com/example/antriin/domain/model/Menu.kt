@@ -1,7 +1,6 @@
 package com.example.antriin.domain.model
 
 import com.google.firebase.database.Exclude
-import com.google.firebase.database.PropertyName
 
 data class Menu(
     val id: String = "",

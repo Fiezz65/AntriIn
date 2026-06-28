@@ -1,16 +1,6 @@
 package com.example.antriin.presentation.ui.seller
 
-import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
-import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
-import com.example.antriin.presentation.viewmodel.seller.HistoryViewModel
-import com.example.antriin.presentation.viewmodel.seller.MenuViewModel
 import com.example.antriin.presentation.viewmodel.seller.SellerNotificationViewModel
-import com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel
-import com.example.antriin.presentation.viewmodel.student.CartViewModel
-import com.example.antriin.presentation.viewmodel.student.HomeViewModel
-import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
-import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,7 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -74,7 +64,7 @@ fun SellerNotificationScreen(
         Spacer(modifier = Modifier.height(24.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBackClick) {
-                Icon(Icons.Default.ArrowBack, contentDescription = null, tint = TextBlack)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = TextBlack)
             }
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = "Notifikasi Kantin", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
@@ -124,4 +114,3 @@ fun SellerNotificationScreen(
         }
     }
 }
-

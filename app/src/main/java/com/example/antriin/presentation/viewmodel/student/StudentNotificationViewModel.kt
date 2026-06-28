@@ -74,9 +74,7 @@ class StudentNotificationViewModel(
         com.example.antriin.utils.NotificationState.studentUnreadCount.value = 0
     }
 
-    fun clearNotifications() {
-        _notifications.value = emptyList()
-    }
+
 
     private var isListenerStarted = false
 

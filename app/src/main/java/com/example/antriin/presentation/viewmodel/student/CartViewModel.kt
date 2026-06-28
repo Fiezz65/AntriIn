@@ -142,6 +142,7 @@ class CartViewModel(
                     _checkoutSuccess.value = true
                 }
             } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -151,6 +152,6 @@ class CartViewModel(
     }
 
     fun getMenuIcon(menuId: String): String {
-        return cachedMenus.find { it.id == menuId }?.icon ?: "🍱"
+        return cachedMenus.find { it.id == menuId }?.icon ?: "🍽️"
     }
 }

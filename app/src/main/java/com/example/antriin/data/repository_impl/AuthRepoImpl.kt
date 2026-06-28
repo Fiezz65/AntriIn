@@ -75,6 +75,7 @@ class AuthRepoImpl(
             val snapshot = firebaseDatabase.getReference("users").child(user.uid).get().await()
             snapshot.child("role").getValue(String::class.java)
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
     }

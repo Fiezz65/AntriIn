@@ -45,6 +45,7 @@ class UserRepoImpl : UserRepository {
             val snapshot = usersRef.child(uid).get().await()
             snapshot.getValue(User::class.java)
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
     }
@@ -61,6 +62,7 @@ class UserRepoImpl : UserRepository {
             }
             sellers
         } catch (e: Exception) {
+            e.printStackTrace()
             emptyList()
         }
     }

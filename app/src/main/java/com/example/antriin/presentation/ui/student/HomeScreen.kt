@@ -1,17 +1,8 @@
 package com.example.antriin.presentation.ui.student
 
-import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
-import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
-import com.example.antriin.presentation.viewmodel.seller.HistoryViewModel
-import com.example.antriin.presentation.viewmodel.seller.MenuViewModel
-import com.example.antriin.presentation.viewmodel.seller.SellerNotificationViewModel
-import com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel
 import com.example.antriin.presentation.viewmodel.student.CartViewModel
 import com.example.antriin.presentation.viewmodel.student.HomeViewModel
-import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
 import com.example.antriin.presentation.viewmodel.student.StudentNotificationViewModel
-import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
@@ -143,10 +134,10 @@ fun HomeScreen(
     var showKantinWarningDialog by remember { mutableStateOf(false) }
     var selectedMenuForNote by remember { mutableStateOf<Menu?>(null) }
     var noteText by remember { mutableStateOf("") }
-    var quantity by remember { mutableStateOf(1) }
+    var quantity by remember { androidx.compose.runtime.mutableIntStateOf(1) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    val notifications by notificationViewModel.notifications.collectAsState()
+
     val notificationCount by notificationViewModel.unreadCount.collectAsState()
 
     if (showKantinWarningDialog) {
@@ -349,7 +340,7 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                androidx.compose.material3.Text(
+                Text(
                     text = buildAnnotatedString {
                         withStyle(
                             style = SpanStyle(color = TextGray, fontWeight = FontWeight.Normal)
@@ -359,7 +350,7 @@ fun HomeScreen(
                         withStyle(
                             style = SpanStyle(color = TextBlack, fontWeight = FontWeight.Bold)
                         ) {
-                            append(if (userName.isNotEmpty()) userName else "Memuat...")
+                            append(userName.ifEmpty { "Memuat..." })
                         }
                     },
                     fontSize = 16.sp,
@@ -626,7 +617,7 @@ fun HomeScreen(
                     items(filteredMenu) { menu ->
                         val cartItem = cartItems.find { it.menuId == menu.id }
                         val cartQuantity = cartItem?.quantity ?: 0
-                        val cartNotes = cartItem?.notes ?: ""
+
                         
                         MenuCard(
                             menu = menu,
@@ -651,4 +642,3 @@ fun HomeScreen(
         }
     }
 }
-

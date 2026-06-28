@@ -29,7 +29,7 @@ class LiveTrackingViewModel(
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser
 
-    private val _sellerName = MutableStateFlow<String>("")
+    private val _sellerName = MutableStateFlow("")
     val sellerName: StateFlow<String> = _sellerName
 
     private val _sellers = MutableStateFlow<List<User>>(emptyList())
@@ -70,7 +70,7 @@ class LiveTrackingViewModel(
                                 if (_selectedSellerId.value == null) {
                                     _selectedSellerId.value = fetchedSellers.first().uid
                                 }
-                                listenToSellerQueue(_selectedSellerId.value!!)
+                                _selectedSellerId.value?.let { listenToSellerQueue(it) }
                             } else {
                                 _queueList.value = emptyList()
                                 _isBusy.value = false

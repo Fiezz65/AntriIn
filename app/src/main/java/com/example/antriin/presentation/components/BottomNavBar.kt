@@ -1,7 +1,7 @@
 package com.example.antriin.presentation.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FormatListBulleted
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -126,7 +126,7 @@ fun BottomNavBar(
             NavigationBarItem(
                 selected = currentRoute == "tracking",
                 onClick = { onNavigate("tracking") },
-                icon = { Icon(Icons.Default.FormatListBulleted, contentDescription = null) },
+                icon = { Icon(Icons.AutoMirrored.Filled.FormatListBulleted, contentDescription = null) },
                 label = { Text("Antrean") },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = PrimaryOrange,

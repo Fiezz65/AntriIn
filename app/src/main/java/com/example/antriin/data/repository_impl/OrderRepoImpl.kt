@@ -11,10 +11,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import android.content.Context
+import androidx.core.content.edit
 
 class OrderRepoImpl(
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance(),
-    private val context: Context
+    context: Context
 ) : OrderRepository {
     private val prefs = context.getSharedPreferences("antriin_prefs", Context.MODE_PRIVATE)
     
@@ -118,7 +119,7 @@ class OrderRepoImpl(
     }
 
     override fun markAsRead(role: String) {
-        prefs.edit().putLong("last_read_time_$role", System.currentTimeMillis()).apply()
+        prefs.edit { putLong("last_read_time_$role", System.currentTimeMillis()) }
     }
 
     override fun getLastReadTime(role: String): Long {

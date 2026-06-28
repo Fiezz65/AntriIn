@@ -57,6 +57,7 @@ class WeatherRepoImpl : WeatherRepository {
                 WeatherInfo("??°C", "Gagal memuat cuaca", city)
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             WeatherInfo("??°C", "Koneksi bermasalah", city)
         }
     }

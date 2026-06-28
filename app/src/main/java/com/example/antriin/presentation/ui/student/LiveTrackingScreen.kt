@@ -1,17 +1,8 @@
 package com.example.antriin.presentation.ui.student
 
-import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
-import com.example.antriin.presentation.viewmodel.seller.DashboardViewModel
-import com.example.antriin.presentation.viewmodel.seller.HistoryViewModel
-import com.example.antriin.presentation.viewmodel.seller.MenuViewModel
-import com.example.antriin.presentation.viewmodel.seller.SellerNotificationViewModel
-import com.example.antriin.presentation.viewmodel.seller.SellerProfileViewModel
 import com.example.antriin.presentation.viewmodel.student.CartViewModel
-import com.example.antriin.presentation.viewmodel.student.HomeViewModel
 import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
 import com.example.antriin.presentation.viewmodel.student.StudentNotificationViewModel
-import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
@@ -26,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -37,7 +27,7 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -50,7 +40,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -60,6 +49,7 @@ import com.example.antriin.presentation.theme.BackgroundLight
 import com.example.antriin.presentation.theme.PrimaryOrange
 import com.example.antriin.presentation.theme.TextBlack
 import com.example.antriin.presentation.theme.TextGray
+import com.example.antriin.utils.formatRupiah
 
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
@@ -78,7 +68,7 @@ fun LiveTrackingScreen(
     val sellers by viewModel.sellers.collectAsState()
     val selectedSellerId by viewModel.selectedSellerId.collectAsState()
     val cartItems by cartViewModel.cartItems.collectAsState()
-    val notifications by notificationViewModel.notifications.collectAsState()
+
     val notificationCount by notificationViewModel.unreadCount.collectAsState()
 
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -222,12 +212,12 @@ fun LiveTrackingScreen(
                                                     fontWeight = FontWeight.SemiBold,
                                                     color = TextBlack,
                                                     maxLines = 1,
-                                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                                    overflow = TextOverflow.Ellipsis,
                                                     modifier = Modifier.padding(end = 8.dp)
                                                 )
                                             }
                                             Text(
-                                                text = com.example.antriin.utils.formatRupiah(item.price),
+                                                text = formatRupiah(item.price),
                                                 fontSize = 14.sp,
                                                 fontWeight = FontWeight.SemiBold,
                                                 color = TextBlack
@@ -245,16 +235,16 @@ fun LiveTrackingScreen(
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Text(text = "${com.example.antriin.utils.formatRupiah(order.totalPrice)} - ${order.paymentMethod}", fontSize = 14.sp, color = TextGray)
+                                Text(text = "${formatRupiah(order.totalPrice)} - ${order.paymentMethod}", fontSize = 14.sp, color = TextGray)
     
                                 Spacer(modifier = Modifier.height(24.dp))
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                                    Text(text = "Menunggu", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = if (order.status == com.example.antriin.domain.model.OrderStatus.WAITING_VALIDATION || order.status == "Menunggu Validasi") PrimaryOrange else TextBlack)
-                                    Text(text = "Diproses", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = if (order.status == com.example.antriin.domain.model.OrderStatus.PROCESSING) PrimaryOrange else if (order.status == com.example.antriin.domain.model.OrderStatus.READY) TextBlack else TextGray)
-                                    Text(text = "Siap Diambil", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = if (order.status == com.example.antriin.domain.model.OrderStatus.READY) PrimaryOrange else TextGray)
+                                    Text(text = "Menunggu", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = if (order.status == "Menunggu Validasi") PrimaryOrange else TextBlack)
+                                    Text(text = "Diproses", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = if (order.status == "Diproses") PrimaryOrange else if (order.status == "Siap Diambil") TextBlack else TextGray)
+                                    Text(text = "Siap Diambil", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = if (order.status == "Siap Diambil") PrimaryOrange else TextGray)
                                 }
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Divider(color = PrimaryOrange, thickness = 4.dp)
+                                HorizontalDivider(color = PrimaryOrange, thickness = 4.dp)
                             }
                         }
     
@@ -328,4 +318,3 @@ fun LiveTrackingScreen(
         }
     }
 }
-

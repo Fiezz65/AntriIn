@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.style.TextOverflow
 import com.example.antriin.domain.model.Order
 import com.example.antriin.presentation.theme.PrimaryOrange
 import com.example.antriin.presentation.theme.TextBlack
@@ -70,7 +69,7 @@ fun QueueStatusCard(
                 )
             }
 
-            val displayStatus = if (order.status == "Menunggu Validasi" || order.status == com.example.antriin.domain.model.OrderStatus.WAITING_VALIDATION) "Menunggu" else order.status
+            val displayStatus = if (order.status == "Menunggu Validasi") "Menunggu" else order.status
             Text(
                 text = displayStatus,
                 fontSize = 12.sp,
