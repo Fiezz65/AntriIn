@@ -31,16 +31,27 @@ class SellerNotificationViewModel(
                 orderRepository.getSellerOrders(user.uid).collectLatest { orders ->
                     val lastReadTime = orderRepository.getLastReadTime("seller")
                     val notifList = mutableListOf<Triple<String, String, Boolean>>()
+                    
+                    val calendar = java.util.Calendar.getInstance()
+                    val currentYear = calendar.get(java.util.Calendar.YEAR)
+                    val currentDay = calendar.get(java.util.Calendar.DAY_OF_YEAR)
+
                     orders.forEach { order ->
-                        val menuNames = order.items.formatMenuNames()
-                        val isUnread = order.lastUpdated > lastReadTime
-                        when (order.status) {
-                            "Menunggu Validasi" -> notifList.add(Triple("Pesanan Baru!", "Pesanan baru dari ${order.buyerName} ($menuNames, ${order.paymentMethod}) menunggu validasi.", isUnread))
-                            "Belum Bayar" -> notifList.add(Triple("Menunggu Pembayaran", "Pesanan dari ${order.buyerName} ($menuNames, ${order.paymentMethod}) belum dibayar.", isUnread))
+                        calendar.timeInMillis = order.timestamp
+                        val isToday = calendar.get(java.util.Calendar.YEAR) == currentYear && 
+                                      calendar.get(java.util.Calendar.DAY_OF_YEAR) == currentDay
+                        
+                        if (isToday) {
+                            val menuNames = order.items.formatMenuNames()
+                            val isUnread = order.lastUpdated > lastReadTime
+                            when (order.status) {
+                                "Menunggu Validasi" -> notifList.add(Triple("Pesanan Baru!", "Pesanan baru dari ${order.buyerName} ($menuNames, ${order.paymentMethod}) menunggu validasi.", isUnread))
+                                "Belum Bayar" -> notifList.add(Triple("Menunggu Pembayaran", "Pesanan dari ${order.buyerName} ($menuNames, ${order.paymentMethod}) belum dibayar.", isUnread))
+                            }
                         }
                     }
                     _notifications.value = notifList.take(20)
-                    com.example.antriin.utils.NotificationState.sellerUnreadCount.value = orderRepository.getUnreadCount(orders, "seller")
+                    com.example.antriin.utils.NotificationState.sellerUnreadCount.value = notifList.count { it.third }
                 }
             }
         }
@@ -66,8 +77,16 @@ class SellerNotificationViewModel(
             if (user != null) {
                 orderRepository.getSellerOrders(user.uid).collectLatest { orders ->
                     val lastReadTime = orderRepository.getLastReadTime("seller")
+                    val calendar = java.util.Calendar.getInstance()
+                    val currentYear = calendar.get(java.util.Calendar.YEAR)
+                    val currentDay = calendar.get(java.util.Calendar.DAY_OF_YEAR)
+
                     orders.forEach { order ->
-                        if ((order.status == "Menunggu Validasi" || order.status == "Belum Bayar") && !com.example.antriin.utils.NotificationState.notifiedOrderIds.contains(order.orderId)) {
+                        calendar.timeInMillis = order.timestamp
+                        val isToday = calendar.get(java.util.Calendar.YEAR) == currentYear && 
+                                      calendar.get(java.util.Calendar.DAY_OF_YEAR) == currentDay
+
+                        if (isToday && (order.status == "Menunggu Validasi" || order.status == "Belum Bayar") && !com.example.antriin.utils.NotificationState.notifiedOrderIds.contains(order.orderId)) {
                             com.example.antriin.utils.NotificationState.notifiedOrderIds.add(order.orderId)
                             if (!isInitialLoad || order.lastUpdated > lastReadTime) {
                                 val menuNames = order.items.formatMenuNames()

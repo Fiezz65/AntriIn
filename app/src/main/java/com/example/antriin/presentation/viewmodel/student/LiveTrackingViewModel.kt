@@ -48,8 +48,15 @@ class LiveTrackingViewModel(
             if (user != null) {
                 _currentUser.value = user
                 orderRepository.getStudentOrders(user.uid).collectLatest { orders ->
-                    val activeOrder = orders.sortedBy { it.timestamp }.find {
-                        it.status != OrderStatus.COMPLETED && it.status != "Dibatalkan"
+                    val calendar = java.util.Calendar.getInstance()
+                    val currentYear = calendar.get(java.util.Calendar.YEAR)
+                    val currentDay = calendar.get(java.util.Calendar.DAY_OF_YEAR)
+
+                    val activeOrder = orders.sortedBy { it.timestamp }.find { order ->
+                        calendar.timeInMillis = order.timestamp
+                        val isToday = calendar.get(java.util.Calendar.YEAR) == currentYear && 
+                                      calendar.get(java.util.Calendar.DAY_OF_YEAR) == currentDay
+                        isToday && order.status != OrderStatus.COMPLETED && order.status != "Dibatalkan"
                     }
                     _currentOrder.value = activeOrder
 
@@ -92,9 +99,17 @@ class LiveTrackingViewModel(
         
         sellerQueueJob?.cancel()
         sellerQueueJob = viewModelScope.launch {
+            val calendar = java.util.Calendar.getInstance()
+            val currentYear = calendar.get(java.util.Calendar.YEAR)
+            val currentDay = calendar.get(java.util.Calendar.DAY_OF_YEAR)
+
             orderRepository.getSellerOrders(sellerId).collectLatest { sellerOrders ->
-                val activeQueue = sellerOrders.filter {
-                    it.status == OrderStatus.WAITING_VALIDATION || it.status == OrderStatus.PROCESSING || it.status == OrderStatus.READY
+                val activeQueue = sellerOrders.filter { order ->
+                    calendar.timeInMillis = order.timestamp
+                    val isToday = calendar.get(java.util.Calendar.YEAR) == currentYear && 
+                                  calendar.get(java.util.Calendar.DAY_OF_YEAR) == currentDay
+                    
+                    isToday && (order.status == OrderStatus.WAITING_VALIDATION || order.status == OrderStatus.PROCESSING || order.status == OrderStatus.READY)
                 }.sortedBy { it.timestamp }
                 
                 _queueList.value = activeQueue

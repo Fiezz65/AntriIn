@@ -48,7 +48,10 @@ class CartViewModel(
                 for (item in cart) {
                     val firebaseMenu = menus.find { it.id == item.menuId }
                     if (firebaseMenu != null && !firebaseMenu.soldOut) {
-                        validCartItems.add(item)
+                        validCartItems.add(item.copy(
+                            price = firebaseMenu.price,
+                            menuName = firebaseMenu.name
+                        ))
                     }
                 }
                 
