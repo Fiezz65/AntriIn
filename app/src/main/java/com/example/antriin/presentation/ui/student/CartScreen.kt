@@ -12,16 +12,9 @@ import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
 import com.example.antriin.presentation.viewmodel.student.StudentNotificationViewModel
 import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
 
-import android.app.DownloadManager
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
-import android.net.Uri
-import android.os.Build
-import android.os.Environment
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,10 +33,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
@@ -65,7 +57,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -90,6 +84,7 @@ fun CartScreen(
     val totalPrice by viewModel.totalPrice.collectAsState()
     var paymentMethod by remember { mutableStateOf("Tunai") }
     val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
     val checkoutSuccess by viewModel.checkoutSuccess.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -104,8 +99,14 @@ fun CartScreen(
         }
     }
 
-    val dummyQrUrl = ""
+    val sellerPaymentInfo by viewModel.sellerPaymentInfo.collectAsState()
     val notifications by notificationViewModel.notifications.collectAsState()
+
+    LaunchedEffect(sellerPaymentInfo) {
+        if (sellerPaymentInfo.isEmpty()) {
+            paymentMethod = "Tunai"
+        }
+    }
     val notificationCount by notificationViewModel.unreadCount.collectAsState()
 
     Scaffold(
@@ -235,14 +236,16 @@ fun CartScreen(
                                     ) {
                                         Text(text = "Tunai", color = if (paymentMethod == "Tunai") Color.White else TextGray, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                                     }
-                                    Box(
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(20.dp))
-                                            .background(if (paymentMethod == "QRIS") PrimaryOrange else Color.Transparent)
-                                            .clickable { paymentMethod = "QRIS" }
-                                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                                    ) {
-                                        Text(text = "QRIS", color = if (paymentMethod == "QRIS") Color.White else TextGray, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                                    if (sellerPaymentInfo.isNotEmpty()) {
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(20.dp))
+                                                .background(if (paymentMethod == "Transfer") PrimaryOrange else Color.Transparent)
+                                                .clickable { paymentMethod = "Transfer" }
+                                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                        ) {
+                                            Text(text = "Transfer", color = if (paymentMethod == "Transfer") Color.White else TextGray, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                                        }
                                     }
                                 }
                             }
@@ -253,37 +256,54 @@ fun CartScreen(
                                 Icon(Icons.Default.Info, contentDescription = null, tint = TextGray, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = if (paymentMethod == "Tunai") "Segera bayar tunai di kasir agar pesanan diproses." else "Lakukan pembayaran QRIS dan tunggu validasi penjual.",
+                                    text = if (paymentMethod == "Tunai") "Segera bayar tunai di kasir agar pesanan diproses." else "Lakukan transfer sesuai nominal dan nomor penjual agar pesananmu divalidasi.",
                                     fontSize = 12.sp,
                                     color = TextGray
                                 )
                             }
 
-                            if (paymentMethod == "QRIS") {
+                            if (paymentMethod == "Transfer" && sellerPaymentInfo.isNotEmpty()) {
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(200.dp)
-                                        .background(Color(0xFFFAFAFA), RoundedCornerShape(8.dp)),
-                                    contentAlignment = Alignment.Center
+                                        .background(Color(0xFFFAFAFA), RoundedCornerShape(8.dp))
+                                        .padding(16.dp)
                                 ) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Icon(Icons.Default.QrCode2, contentDescription = null, modifier = Modifier.size(120.dp), tint = TextBlack)
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Text(text = "Kode QR Penjual", color = TextGray, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                                    val parts = sellerPaymentInfo.split(" - ")
+                                    val methods = if (parts.isNotEmpty()) parts[0].replace("Dana", "DANA") else ""
+                                    val number = if (parts.size > 1) parts[1] else sellerPaymentInfo
 
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        TextButton(onClick = {
-                                            if (dummyQrUrl.isNotEmpty()) {
-                                                downloadQrCode(context, dummyQrUrl)
-                                            } else {
-                                                Toast.makeText(context, "URL QR Code belum tersedia", Toast.LENGTH_SHORT).show()
-                                            }
-                                        }) {
-                                            Icon(Icons.Default.Download, contentDescription = null, tint = PrimaryOrange, modifier = Modifier.size(16.dp))
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                            Text(text = "Simpan QR", color = PrimaryOrange, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                    Column(modifier = Modifier.fillMaxWidth()) {
+                                        Text(text = "Metode yang Didukung:", color = TextGray, fontSize = 12.sp)
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(text = methods, color = TextBlack, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                                        
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                        
+                                        Text(text = "Nomor Transfer:", color = TextGray, fontSize = 12.sp)
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .background(Color.White, RoundedCornerShape(8.dp))
+                                                .border(1.dp, Color(0xFFEEEEEE), RoundedCornerShape(8.dp))
+                                                .padding(12.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(text = number, color = PrimaryOrange, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                            Icon(
+                                                imageVector = Icons.Default.ContentCopy,
+                                                contentDescription = "Salin Nomor",
+                                                tint = PrimaryOrange,
+                                                modifier = Modifier
+                                                    .size(24.dp)
+                                                    .clickable {
+                                                        clipboardManager.setText(AnnotatedString(number))
+                                                        Toast.makeText(context, "Nomor disalin!", Toast.LENGTH_SHORT).show()
+                                                    }
+                                            )
                                         }
                                     }
                                 }
@@ -299,21 +319,3 @@ fun CartScreen(
         }
     }
 }
-
-fun downloadQrCode(context: Context, imageUrl: String) {
-    try {
-        val request = DownloadManager.Request(Uri.parse(imageUrl))
-        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-        request.setTitle("QRIS_Kantin")
-        request.setDescription("Mengunduh gambar QRIS...")
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "QRIS_Kantin.jpg")
-
-        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        downloadManager.enqueue(request)
-        Toast.makeText(context, "Mulai mengunduh QRIS...", Toast.LENGTH_SHORT).show()
-    } catch (e: Exception) {
-        Toast.makeText(context, "Gagal mengunduh gambar", Toast.LENGTH_SHORT).show()
-    }
-}
-
