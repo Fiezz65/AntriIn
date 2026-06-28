@@ -5,6 +5,8 @@ import com.example.antriin.presentation.viewmodel.student.StudentNotificationVie
 import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -80,7 +82,8 @@ fun StudentProfileScreen(
                 .fillMaxSize()
                 .background(BackgroundLight)
                 .padding(paddingValues)
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 24.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(24.dp))

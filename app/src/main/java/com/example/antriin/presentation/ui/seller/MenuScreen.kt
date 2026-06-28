@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -118,6 +119,7 @@ fun MenuScreen(
                     .fillMaxWidth()
                     .padding(24.dp)
                     .navigationBarsPadding()
+                    .imePadding()
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(text = "Tambah/Edit Menu", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
@@ -308,60 +310,63 @@ fun MenuScreen(
             }
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .background(BackgroundLight)
                 .padding(paddingValues)
                 .padding(horizontal = 24.dp)
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "AntriIn", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(Color(0xFFFDECE2), CircleShape)
-                        .clickable { onNavigate("seller_notification") },
-                    contentAlignment = Alignment.Center
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    BadgedBox(
-                        badge = {
-                            if (notificationCount > 0) {
-                                Badge(containerColor = Color.Red, contentColor = Color.White) {
-                                    Text(text = notificationCount.toString())
+                    Text(text = "AntriIn", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(Color(0xFFFDECE2), CircleShape)
+                            .clickable { onNavigate("seller_notification") },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        BadgedBox(
+                            badge = {
+                                if (notificationCount > 0) {
+                                    Badge(containerColor = Color.Red, contentColor = Color.White) {
+                                        Text(text = notificationCount.toString())
+                                    }
                                 }
                             }
+                        ) {
+                            Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
                         }
-                    ) {
-                        Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
                     }
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(text = "Kelola Menu", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
+                Text(text = "Daftar menu makanan dan minuman Anda.", fontSize = 14.sp, color = TextGray)
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(text = "Kelola Menu", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
-            Text(text = "Daftar menu makanan dan minuman Anda.", fontSize = 14.sp, color = TextGray)
-            Spacer(modifier = Modifier.height(16.dp))
-
             if (menus.isEmpty()) {
-                Box(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = "Belum Ada Menu", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextGray)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = "Mulai tambahkan menu jualan Anda sekarang!", fontSize = 14.sp, color = TextGray)
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(top = 48.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(text = "Belum Ada Menu", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextGray)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(text = "Mulai tambahkan menu jualan Anda sekarang!", fontSize = 14.sp, color = TextGray)
+                        }
                     }
                 }
             } else {
-                LazyColumn(modifier = Modifier.weight(1f)) {
-                    items(menus, key = { it.id }) { menu ->
+                items(menus, key = { it.id }) { menu ->
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -427,9 +432,8 @@ fun MenuScreen(
                             }
                         }
                     }
-                    item { Spacer(modifier = Modifier.height(80.dp)) }
                 }
+                item { Spacer(modifier = Modifier.height(80.dp)) }
             }
         }
     }
-}

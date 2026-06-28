@@ -1,6 +1,7 @@
 package com.example.antriin.presentation.ui.auth
 
 import com.example.antriin.presentation.viewmodel.auth.AuthViewModel
+import androidx.compose.foundation.layout.imePadding
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -158,6 +159,7 @@ fun RegisterScreen(
             .fillMaxSize()
             .background(BackgroundLight)
             .padding(24.dp)
+            .imePadding()
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
