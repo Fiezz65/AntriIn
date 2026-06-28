@@ -170,7 +170,7 @@ fun MenuScreen(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 var expandedCategory by remember { mutableStateOf(false) }
-                val categories = listOf("Nasi", "Minuman", "Mie", "Cemilan")
+                val categories = listOf("Makanan", "Minuman", "Mie", "Cemilan")
                 
                 ExposedDropdownMenuBox(
                     expanded = expandedCategory,
@@ -298,7 +298,7 @@ fun MenuScreen(
                     menuPrice = ""
                     menuDesc = ""
                     menuCategory = ""
-                    menuIcon = "ðŸ½ï¸"
+                    menuIcon = "🍽️"
                     soldOut = false
                     showMenuSheet = true
                 },
