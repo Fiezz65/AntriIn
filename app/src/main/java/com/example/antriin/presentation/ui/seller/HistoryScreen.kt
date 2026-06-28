@@ -115,7 +115,7 @@ fun HistoryScreen(
                     com.example.antriin.presentation.components.EmptyState(
                         title = "Belum Ada Riwayat",
                         message = "Belum ada pesanan yang selesai pada periode ini.",
-                        modifier = Modifier.padding(top = 24.dp)
+                        modifier = Modifier.padding(top = 160.dp)
                     )
                 }
             } else {

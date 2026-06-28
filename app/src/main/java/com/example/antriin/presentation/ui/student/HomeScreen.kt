@@ -614,7 +614,7 @@ fun HomeScreen(
                         com.example.antriin.presentation.components.EmptyState(
                             title = "Menu Tidak Ditemukan",
                             message = "Maaf, belum ada menu yang tersedia untuk kategori atau lokasi ini.",
-                            modifier = Modifier.padding(top = 24.dp)
+                            modifier = Modifier.padding(top = 48.dp)
                         )
                     }
                 } else {

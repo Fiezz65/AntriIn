@@ -184,7 +184,7 @@ fun CartScreen(
                     EmptyState(
                         title = "Keranjang Kosong",
                         message = "Anda belum memilih menu apa pun. Ayo pesan sekarang!",
-                        modifier = Modifier.padding(top = 24.dp)
+                        modifier = Modifier.padding(top = 160.dp)
                     )
                 }
             } else {

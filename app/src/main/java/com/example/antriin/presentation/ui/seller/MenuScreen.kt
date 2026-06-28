@@ -354,16 +354,11 @@ fun MenuScreen(
 
             if (menus.isEmpty()) {
                 item {
-                    Box(
-                        modifier = Modifier.fillMaxWidth().padding(top = 48.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(text = "Belum Ada Menu", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextGray)
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(text = "Mulai tambahkan menu jualan Anda sekarang!", fontSize = 14.sp, color = TextGray)
-                        }
-                    }
+                    com.example.antriin.presentation.components.EmptyState(
+                        title = "Belum Ada Menu",
+                        message = "Mulai tambahkan menu jualan Anda sekarang!",
+                        modifier = Modifier.padding(top = 160.dp)
+                    )
                 }
             } else {
                 items(menus, key = { it.id }) { menu ->

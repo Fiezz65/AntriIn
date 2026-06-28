@@ -11,8 +11,6 @@ import androidx.core.view.WindowCompat
 
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryOrange,
-    secondary = SecondaryDark,
-    tertiary = TertiaryBlue,
     background = BackgroundLight,
     surface = BackgroundLight,
     onPrimary = androidx.compose.ui.graphics.Color.White,

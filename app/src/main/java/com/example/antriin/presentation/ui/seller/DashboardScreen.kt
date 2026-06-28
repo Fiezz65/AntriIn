@@ -229,7 +229,7 @@ fun DashboardScreen(
                     com.example.antriin.presentation.components.EmptyState(
                         title = "Belum Ada Pesanan",
                         message = "Belum ada pesanan masuk untuk status ini.",
-                        modifier = Modifier.padding(top = 24.dp)
+                        modifier = Modifier.padding(top = 48.dp)
                     )
                 }
             } else {
