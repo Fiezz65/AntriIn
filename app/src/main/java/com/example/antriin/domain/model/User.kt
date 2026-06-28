@@ -15,5 +15,6 @@ data class User(
     val location: String = "",
     @get:PropertyName("isOpen")
     @set:PropertyName("isOpen")
-    var isOpen: Boolean = true
+    var isOpen: Boolean = true,
+    val paymentInfo: String = ""
 )

@@ -34,6 +34,9 @@ class CartViewModel(
     private val _checkoutSuccess = MutableStateFlow(false)
     val checkoutSuccess: StateFlow<Boolean> = _checkoutSuccess
 
+    private val _sellerPaymentInfo = MutableStateFlow("")
+    val sellerPaymentInfo: StateFlow<String> = _sellerPaymentInfo
+
     private var cachedMenus: List<Menu> = emptyList()
 
     init {
@@ -59,6 +62,17 @@ class CartViewModel(
                 
                 _cartItems.value = validCartItems
                 calculateTotal(validCartItems)
+
+                if (validCartItems.isNotEmpty()) {
+                    val firstItem = validCartItems.first()
+                    val sellerMenu = menus.find { it.id == firstItem.menuId }
+                    if (sellerMenu != null) {
+                        val seller = userRepository.getUserById(sellerMenu.sellerId)
+                        _sellerPaymentInfo.value = seller?.paymentInfo ?: ""
+                    }
+                } else {
+                    _sellerPaymentInfo.value = ""
+                }
             }
         }
     }

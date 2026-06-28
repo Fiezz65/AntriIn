@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -47,6 +48,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -151,18 +154,23 @@ fun LiveTrackingScreen(
                                 val isSelected = seller.uid == selectedSellerId
                                 Box(
                                     modifier = Modifier
+                                        .width(140.dp)
                                         .background(
                                             color = if (isSelected) PrimaryOrange else Color.White,
                                             shape = RoundedCornerShape(16.dp)
                                         )
                                         .clickable { viewModel.selectSeller(seller.uid) }
-                                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     Text(
                                         text = seller.fullName,
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = if (isSelected) Color.White else TextGray
+                                        color = if (isSelected) Color.White else TextGray,
+                                        maxLines = 1,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE)
                                     )
                                 }
                             }
@@ -285,7 +293,7 @@ fun LiveTrackingScreen(
                                 fontWeight = FontWeight.Bold,
                                 color = TextBlack,
                                 maxLines = 1,
-                                modifier = Modifier.weight(1f, fill = false).basicMarquee()
+                                modifier = Modifier.weight(1f, fill = false).padding(end = 12.dp).basicMarquee(iterations = Int.MAX_VALUE)
                             )
                             Text(
                                 text = "Total: ${queueList.size}",

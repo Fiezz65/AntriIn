@@ -10,9 +10,6 @@ import com.example.antriin.presentation.viewmodel.student.CartViewModel
 import com.example.antriin.presentation.viewmodel.student.HomeViewModel
 import com.example.antriin.presentation.viewmodel.student.LiveTrackingViewModel
 import com.example.antriin.presentation.viewmodel.student.StudentProfileViewModel
-
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +39,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.border
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -63,7 +61,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.example.antriin.presentation.components.BottomNavBar
 import com.example.antriin.presentation.components.CustomTextField
 import com.example.antriin.presentation.components.PrimaryButton
@@ -81,7 +78,6 @@ fun SellerProfileScreen(
     notificationViewModel: SellerNotificationViewModel = viewModel(factory = com.example.antriin.di.ViewModelFactory.Factory)
 ) {
     val user by viewModel.sellerProfile.collectAsState()
-    val qrUri by viewModel.qrCodeUri.collectAsState()
     val notifications by notificationViewModel.notifications.collectAsState()
     val notificationCount by notificationViewModel.unreadCount.collectAsState()
     
@@ -90,20 +86,35 @@ fun SellerProfileScreen(
         notificationViewModel.startGlobalListener(context)
     }
 
-    var showEditSheet by remember { mutableStateOf(false) }
+    var showEditCanteenSheet by remember { mutableStateOf(false) }
+    var showEditPaymentSheet by remember { mutableStateOf(false) }
     var editCanteenName by remember { mutableStateOf("") }
+    
+    var editPaymentNumber by remember { mutableStateOf("") }
+    var isDanaChecked by remember { mutableStateOf(false) }
+    var isGopayChecked by remember { mutableStateOf(false) }
+    var isShopeepayChecked by remember { mutableStateOf(false) }
+    var isOvoChecked by remember { mutableStateOf(false) }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        viewModel.updateQrCode(uri)
+    fun parsePaymentInfo(info: String) {
+        isDanaChecked = info.contains("DANA", ignoreCase = true)
+        isGopayChecked = info.contains("GoPay", ignoreCase = true)
+        isShopeepayChecked = info.contains("ShopeePay", ignoreCase = true)
+        isOvoChecked = info.contains("OVO", ignoreCase = true)
+        
+        val parts = info.split(" - ")
+        if (parts.size == 2) {
+            editPaymentNumber = parts[1]
+        } else {
+            editPaymentNumber = info.replace(Regex("[^0-9]"), "")
+        }
     }
 
-    if (showEditSheet) {
+    if (showEditCanteenSheet) {
         ModalBottomSheet(
-            onDismissRequest = { showEditSheet = false },
+            onDismissRequest = { showEditCanteenSheet = false },
             sheetState = sheetState,
             containerColor = Color.White
         ) {
@@ -130,13 +141,74 @@ fun SellerProfileScreen(
                     }
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
-
                 PrimaryButton(
                     text = "SIMPAN PERUBAHAN",
                     onClick = {
-                        viewModel.updateProfile(editCanteenName, user.isOpen)
-                        showEditSheet = false
+                        viewModel.updateProfile(editCanteenName, user.isOpen, user.paymentInfo)
+                        showEditCanteenSheet = false
+                    }
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+        }
+    }
+
+    if (showEditPaymentSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showEditPaymentSheet = false },
+            sheetState = sheetState,
+            containerColor = Color.White
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp)
+            ) {
+                Text(text = "Metode Pembayaran", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(text = "E-Wallet yang Diterima", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = TextBlack)
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    EWalletOption(name = "DANA", isSelected = isDanaChecked, onClick = { isDanaChecked = !isDanaChecked }, modifier = Modifier.weight(1f))
+                    EWalletOption(name = "GoPay", isSelected = isGopayChecked, onClick = { isGopayChecked = !isGopayChecked }, modifier = Modifier.weight(1f))
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    EWalletOption(name = "ShopeePay", isSelected = isShopeepayChecked, onClick = { isShopeepayChecked = !isShopeepayChecked }, modifier = Modifier.weight(1f))
+                    EWalletOption(name = "OVO", isSelected = isOvoChecked, onClick = { isOvoChecked = !isOvoChecked }, modifier = Modifier.weight(1f))
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                CustomTextField(
+                    value = editPaymentNumber,
+                    onValueChange = { editPaymentNumber = it.replace(Regex("[^0-9]"), "") },
+                    label = "Nomor HP",
+                    placeholder = "Contoh: 081234567890",
+                    supportingText = {
+                        Text(
+                            text = "Kosongkan nomor ini jika hanya menerima tunai.",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Start,
+                            color = TextGray
+                        )
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                PrimaryButton(
+                    text = "SIMPAN PEMBAYARAN",
+                    onClick = {
+                        val selectedMethods = mutableListOf<String>()
+                        if (isDanaChecked) selectedMethods.add("DANA")
+                        if (isGopayChecked) selectedMethods.add("GoPay")
+                        if (isShopeepayChecked) selectedMethods.add("ShopeePay")
+                        if (isOvoChecked) selectedMethods.add("OVO")
+
+                        viewModel.updatePaymentInfo(user.canteenName, user.isOpen, selectedMethods, editPaymentNumber)
+                        showEditPaymentSheet = false
                     }
                 )
                 Spacer(modifier = Modifier.height(24.dp))
@@ -238,7 +310,7 @@ fun SellerProfileScreen(
                                 .clip(CircleShape)
                                 .clickable { 
                                     editCanteenName = user.canteenName
-                                    showEditSheet = true 
+                                    showEditCanteenSheet = true 
                                 }
                         )
                     }
@@ -248,7 +320,7 @@ fun SellerProfileScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Button(
-                        onClick = { viewModel.updateProfile(user.canteenName, !user.isOpen) },
+                        onClick = { viewModel.updateProfile(user.canteenName, !user.isOpen, user.paymentInfo) },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (user.isOpen) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
                             contentColor = if (user.isOpen) Color(0xFF4CAF50) else Color.Red
@@ -262,55 +334,25 @@ fun SellerProfileScreen(
                             fontWeight = FontWeight.SemiBold
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = { 
+                            parsePaymentInfo(user.paymentInfo)
+                            showEditPaymentSheet = true 
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.fillMaxWidth().height(48.dp)
+                    ) {
+                        Icon(Icons.Default.QrCode, contentDescription = null, modifier = Modifier.size(20.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = "Atur Pembayaran", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = { launcher.launch("image/*") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.QrCode, contentDescription = null, tint = PrimaryOrange)
-                        Text(text = if (qrUri != null) "Ganti Gambar QRIS" else "Unggah Gambar QRIS", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TextBlack, modifier = Modifier.padding(start = 16.dp))
-                    }
-                    Text(text = ">", fontSize = 18.sp, color = TextGray)
-                }
-            }
-
-            if (qrUri != null) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        AsyncImage(
-                            model = qrUri,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            contentScale = ContentScale.Fit
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
 
             Button(
                 onClick = { 
@@ -331,5 +373,34 @@ fun SellerProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
         }
+    }
+}
+
+@Composable
+fun EWalletOption(
+    name: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (isSelected) PrimaryOrange.copy(alpha = 0.1f) else Color(0xFFF5F5F5))
+            .clickable { onClick() }
+            .border(
+                width = 1.dp,
+                color = if (isSelected) PrimaryOrange else Color.Transparent,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .padding(vertical = 12.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = name,
+            color = if (isSelected) PrimaryOrange else TextGray,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }

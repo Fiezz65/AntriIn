@@ -1,6 +1,5 @@
 package com.example.antriin.presentation.viewmodel.seller
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.example.antriin.domain.model.User
 import com.google.firebase.auth.FirebaseAuth
@@ -16,9 +15,6 @@ class SellerProfileViewModel(private val cartRepository: CartRepository) : ViewM
 
     private val _sellerProfile = MutableStateFlow(User())
     val sellerProfile: StateFlow<User> = _sellerProfile
-
-    private val _qrCodeUri = MutableStateFlow<Uri?>(null)
-    val qrCodeUri: StateFlow<Uri?> = _qrCodeUri
 
     init {
         fetchSellerProfile()
@@ -38,13 +34,7 @@ class SellerProfileViewModel(private val cartRepository: CartRepository) : ViewM
         }
     }
 
-    fun updateQrCode(uri: Uri?) {
-        if (uri != null) {
-            _qrCodeUri.value = uri
-        }
-    }
-
-    fun updateProfile(newName: String, isOpen: Boolean) {
+    fun updateProfile(newName: String, isOpen: Boolean, paymentInfo: String) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid != null) {
 
@@ -52,13 +42,24 @@ class SellerProfileViewModel(private val cartRepository: CartRepository) : ViewM
                 .child("canteenName").setValue(newName)
             FirebaseDatabase.getInstance().getReference("users").child(uid)
                 .child("isOpen").setValue(isOpen)
+            FirebaseDatabase.getInstance().getReference("users").child(uid)
+                .child("paymentInfo").setValue(paymentInfo)
             
-
             _sellerProfile.value = _sellerProfile.value.copy(
                 canteenName = newName,
-                isOpen = isOpen
+                isOpen = isOpen,
+                paymentInfo = paymentInfo
             )
         }
+    }
+
+    fun updatePaymentInfo(canteenName: String, isOpen: Boolean, selectedMethods: List<String>, phoneNumber: String) {
+        val newPaymentInfo = if (selectedMethods.isEmpty() || phoneNumber.isEmpty()) {
+            ""
+        } else {
+            "${selectedMethods.joinToString(", ")} - $phoneNumber"
+        }
+        updateProfile(canteenName, isOpen, newPaymentInfo)
     }
 
     fun logout() {
