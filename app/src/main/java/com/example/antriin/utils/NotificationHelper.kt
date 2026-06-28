@@ -56,7 +56,7 @@ object NotificationHelper {
         createNotificationChannel(context)
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_antriin_notif)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -75,7 +75,7 @@ object NotificationHelper {
         createNotificationChannel(context)
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_antriin_notif)
             .setContentTitle("Pesanan Baru Masuk!")
             .setContentText("Pesanan baru dari $buyerName ($menuNames, $paymentMethod). Segera validasi di Dashboard.")
             .setPriority(NotificationCompat.PRIORITY_HIGH)

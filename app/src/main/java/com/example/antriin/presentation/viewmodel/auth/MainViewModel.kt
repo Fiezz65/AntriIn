@@ -25,6 +25,7 @@ class MainViewModel(
 
     private fun checkDestination() {
         viewModelScope.launch {
+            kotlinx.coroutines.delay(500)
             val role = checkUserRoleUseCase()
             _startDestination.value = when (role) {
                 "Mahasiswa" -> Screen.Home.route

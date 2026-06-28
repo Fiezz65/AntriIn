@@ -5,10 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.painterResource
+import com.example.antriin.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.example.antriin.presentation.navigation.SetupNavGraph
 import com.example.antriin.presentation.theme.AntriInTheme
@@ -43,7 +47,11 @@ class MainActivity : ComponentActivity() {
                 
                 if (startDestination == null) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_antriin_logo_transparent),
+                            contentDescription = "Logo AntriIn",
+                            modifier = Modifier.size(150.dp)
+                        )
                     }
                 } else {
                     startDestination?.let { dest ->
