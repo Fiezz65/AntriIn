@@ -137,57 +137,58 @@ fun CartScreen(
             }
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .background(BackgroundLight)
                 .padding(paddingValues)
                 .padding(horizontal = 24.dp)
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "AntriIn", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(Color(0xFFFDECE2), CircleShape)
-                        .clickable { onNavigate("notification") },
-                    contentAlignment = Alignment.Center
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    BadgedBox(
-                        badge = {
-                            if (notificationCount > 0) {
-                                Badge(containerColor = Color.Red, contentColor = Color.White) {
-                                    Text(text = notificationCount.toString())
+                    Text(text = "AntriIn", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(Color(0xFFFDECE2), CircleShape)
+                            .clickable { onNavigate("notification") },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        BadgedBox(
+                            badge = {
+                                if (notificationCount > 0) {
+                                    Badge(containerColor = Color.Red, contentColor = Color.White) {
+                                        Text(text = notificationCount.toString())
+                                    }
                                 }
                             }
+                        ) {
+                            Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
                         }
-                    ) {
-                        Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
                     }
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(text = "Keranjang Saya", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
+                Text(text = "Periksa kembali pesanan Anda sebelum membayar.", fontSize = 14.sp, color = TextGray)
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(text = "Keranjang Saya", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
-            Text(text = "Periksa kembali pesanan Anda sebelum membayar.", fontSize = 14.sp, color = TextGray)
-            Spacer(modifier = Modifier.height(16.dp))
-
             if (cartItems.isEmpty()) {
-                EmptyState(
-                    title = "Keranjang Kosong",
-                    message = "Anda belum memilih menu apa pun. Ayo pesan sekarang!",
-                    modifier = Modifier.weight(1f)
-                )
+                item {
+                    EmptyState(
+                        title = "Keranjang Kosong",
+                        message = "Anda belum memilih menu apa pun. Ayo pesan sekarang!",
+                        modifier = Modifier.padding(top = 24.dp)
+                    )
+                }
             } else {
-                LazyColumn(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    items(cartItems) { item ->
+                items(cartItems) { item ->
                         CartItemCard(
                             cartItem = item,
                             icon = viewModel.getMenuIcon(item.menuId),
@@ -300,11 +301,7 @@ fun CartScreen(
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
                 }
-            }
-
-
             }
         }
     }

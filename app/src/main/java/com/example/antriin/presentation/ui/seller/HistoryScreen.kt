@@ -68,55 +68,58 @@ fun HistoryScreen(
     Scaffold(
         bottomBar = { BottomNavBar(currentRoute = "history", onNavigate = onTabNavigate, isSeller = true) }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .background(BackgroundLight)
                 .padding(paddingValues)
                 .padding(horizontal = 24.dp)
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "AntriIn", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(Color(0xFFFDECE2), CircleShape)
-                        .clickable { onNavigate("seller_notification") },
-                    contentAlignment = Alignment.Center
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    BadgedBox(
-                        badge = {
-                            if (notificationCount > 0) {
-                                Badge(containerColor = Color.Red, contentColor = Color.White) {
-                                    Text(text = notificationCount.toString())
+                    Text(text = "AntriIn", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(Color(0xFFFDECE2), CircleShape)
+                            .clickable { onNavigate("seller_notification") },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        BadgedBox(
+                            badge = {
+                                if (notificationCount > 0) {
+                                    Badge(containerColor = Color.Red, contentColor = Color.White) {
+                                        Text(text = notificationCount.toString())
+                                    }
                                 }
                             }
+                        ) {
+                            Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
                         }
-                    ) {
-                        Icon(Icons.Default.Notifications, contentDescription = null, tint = PrimaryOrange)
                     }
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(text = "Riwayat Hari Ini", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
+                Text(text = "Daftar pesanan yang telah diselesaikan hari ini.", fontSize = 14.sp, color = TextGray)
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(text = "Riwayat Hari Ini", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
-            Text(text = "Daftar pesanan yang telah diselesaikan hari ini.", fontSize = 14.sp, color = TextGray)
-            Spacer(modifier = Modifier.height(16.dp))
-
             if (historyList.isEmpty()) {
-                com.example.antriin.presentation.components.EmptyState(
-                    title = "Belum Ada Riwayat",
-                    message = "Belum ada pesanan yang selesai pada periode ini.",
-                    modifier = Modifier.weight(1f)
-                )
+                item {
+                    com.example.antriin.presentation.components.EmptyState(
+                        title = "Belum Ada Riwayat",
+                        message = "Belum ada pesanan yang selesai pada periode ini.",
+                        modifier = Modifier.padding(top = 24.dp)
+                    )
+                }
             } else {
-                LazyColumn(modifier = Modifier.weight(1f)) {
-                    items(historyList) { order ->
+                items(historyList) { order ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -174,7 +177,6 @@ fun HistoryScreen(
                     }
                 }
                 item { Spacer(modifier = Modifier.height(24.dp)) }
-            }
             }
         }
     }

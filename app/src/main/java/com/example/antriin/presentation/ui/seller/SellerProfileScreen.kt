@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -113,6 +114,8 @@ fun SellerProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(24.dp)
+                    .imePadding()
+                    .verticalScroll(rememberScrollState())
             ) {
                 Text(text = "Edit Nama Kantin", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
                 Spacer(modifier = Modifier.height(16.dp))
@@ -154,6 +157,8 @@ fun SellerProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(24.dp)
+                    .imePadding()
+                    .verticalScroll(rememberScrollState())
             ) {
                 Text(text = "Metode Pembayaran", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextBlack)
                 Spacer(modifier = Modifier.height(16.dp))
