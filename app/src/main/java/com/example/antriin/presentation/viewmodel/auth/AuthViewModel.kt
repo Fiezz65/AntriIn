@@ -1,4 +1,4 @@
-﻿package com.example.antriin.presentation.viewmodel.auth
+package com.example.antriin.presentation.viewmodel.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -64,7 +64,7 @@ class AuthViewModel(
         secretCode: String
     ) {
         if (canteenName.isBlank() || email.isBlank() || pass.isBlank() || phoneNumber.isBlank() || location.isBlank() || secretCode.isBlank()) {
-            _authState.value = UiState.Error("Semua kolom harus diisi")
+            _authState.value = UiState.Error("Semua field wajib diisi!")
             return
         }
         

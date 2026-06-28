@@ -105,7 +105,7 @@ fun MenuScreen(
     var soldOut by remember { mutableStateOf(false) }
     var menuToDelete by remember { mutableStateOf<Menu?>(null) }
 
-    val iconOptions = listOf("🍽️", "🍚", "🍜", "🍲", "🍔", "🍟", "🍕", "🍹", "☕", "🍰")
+    val iconOptions = listOf("🍽️", "🍚", "🍛", "🍜", "🍔", "🍟", "🌭", "☕", "🥛", "🍵", "🧋", "🧃", "🍹")
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     if (showMenuSheet) {
