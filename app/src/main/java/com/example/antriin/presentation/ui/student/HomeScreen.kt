@@ -51,6 +51,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,7 +64,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.antriin.domain.model.Menu
 import com.example.antriin.presentation.components.BottomNavBar
 import com.example.antriin.presentation.components.CustomTextField
 import com.example.antriin.presentation.components.MenuCard
@@ -132,11 +132,12 @@ fun HomeScreen(
         }
     }
 
-    var showBottomSheet by remember { mutableStateOf(false) }
+    var showBottomSheet by rememberSaveable { mutableStateOf(false) }
     var showKantinWarningDialog by remember { mutableStateOf(false) }
-    var selectedMenuForNote by remember { mutableStateOf<Menu?>(null) }
-    var noteText by remember { mutableStateOf("") }
-    var quantity by remember { androidx.compose.runtime.mutableIntStateOf(1) }
+    var selectedMenuIdForNote by rememberSaveable { mutableStateOf<String?>(null) }
+    val selectedMenuForNote = menuList.find { it.id == selectedMenuIdForNote }
+    var noteText by rememberSaveable { mutableStateOf("") }
+    var quantity by rememberSaveable { androidx.compose.runtime.mutableIntStateOf(1) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
 
@@ -168,7 +169,7 @@ fun HomeScreen(
             sheetState = sheetState,
             containerColor = Color.White
         ) {
-            selectedMenuForNote?.let { menu ->
+            selectedMenuForNote.let { menu ->
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -627,7 +628,7 @@ fun HomeScreen(
                             menu = menu,
                             cartQuantity = cartQuantity,
                             onAddClick = {
-                                selectedMenuForNote = menu
+                                selectedMenuIdForNote = menu.id
                                 quantity = 1
                                 noteText = ""
                                 showBottomSheet = true

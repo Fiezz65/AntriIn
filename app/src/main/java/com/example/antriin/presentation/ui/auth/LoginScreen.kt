@@ -29,7 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,15 +57,15 @@ fun LoginScreen(
     onLoginSuccess: (String) -> Unit,
     viewModel: AuthViewModel = viewModel(factory = ViewModelFactory.Factory)
 ) {
-    var email by remember {
+    var email by rememberSaveable {
         mutableStateOf("")
     }
 
-    var password by remember {
+    var password by rememberSaveable {
         mutableStateOf("")
     }
 
-    var selectedRole by remember {
+    var selectedRole by rememberSaveable {
         mutableStateOf("Mahasiswa")
     }
 

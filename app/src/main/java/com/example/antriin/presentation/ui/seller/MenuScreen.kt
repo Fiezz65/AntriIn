@@ -56,6 +56,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -95,14 +96,14 @@ fun MenuScreen(
         notificationViewModel.startGlobalListener(context)
     }
 
-    var showMenuSheet by remember { mutableStateOf(false) }
-    var editMenuId by remember { mutableStateOf("") }
-    var menuName by remember { mutableStateOf("") }
-    var menuPrice by remember { mutableStateOf("") }
-    var menuDesc by remember { mutableStateOf("") }
-    var menuCategory by remember { mutableStateOf("") }
-    var menuIcon by remember { mutableStateOf("🍽️") }
-    var soldOut by remember { mutableStateOf(false) }
+    var showMenuSheet by rememberSaveable { mutableStateOf(false) }
+    var editMenuId by rememberSaveable { mutableStateOf("") }
+    var menuName by rememberSaveable { mutableStateOf("") }
+    var menuPrice by rememberSaveable { mutableStateOf("") }
+    var menuDesc by rememberSaveable { mutableStateOf("") }
+    var menuCategory by rememberSaveable { mutableStateOf("") }
+    var menuIcon by rememberSaveable { mutableStateOf("🍽️") }
+    var soldOut by rememberSaveable { mutableStateOf(false) }
     var menuToDelete by remember { mutableStateOf<Menu?>(null) }
 
     val iconOptions = listOf("🍽️", "🍚", "🍛", "🍜", "🍔", "🍟", "🌭", "☕", "🥛", "🍵", "🧋", "🧃", "🍹")
