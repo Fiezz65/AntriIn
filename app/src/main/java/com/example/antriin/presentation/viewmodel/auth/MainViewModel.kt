@@ -17,9 +17,6 @@ class MainViewModel(
     val startDestination: StateFlow<String?> = _startDestination
 
     init {
-        viewModelScope.launch {
-            cartRepository.clearCart()
-        }
         checkDestination()
     }
 

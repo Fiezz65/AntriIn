@@ -111,7 +111,7 @@ fun HomeScreen(
     val cartItems by cartViewModel.cartItems.collectAsState()
     val cartTotalPrice by cartViewModel.totalPrice.collectAsState()
 
-    val categories = listOf("Semua", "Makanan", "Mie", "Minuman", "Cemilan")
+    val categories = listOf("Semua", "Makanan", "Minuman", "Cemilan")
     var selectedCategory by remember { mutableStateOf("Semua") }
     var isDropdownExpanded by remember { mutableStateOf(false) }
 
