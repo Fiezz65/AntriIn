@@ -157,10 +157,10 @@ fun DashboardScreen(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp).fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
-                            Text(text = "PORSI TERJUAL", fontSize = 10.sp, color = TextGray, fontWeight = FontWeight.Bold)
+                            Text(text = "MENU TERJUAL", fontSize = 10.sp, color = TextGray, fontWeight = FontWeight.Bold)
                             Row(verticalAlignment = Alignment.Bottom) {
                                 Text(text = portionsSold.toString(), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = PrimaryOrange)
-                                Text(text = " porsi", fontSize = 12.sp, color = TextGray, modifier = Modifier.padding(bottom = 4.dp, start = 4.dp))
+                                Text(text = " menu", fontSize = 12.sp, color = TextGray, modifier = Modifier.padding(bottom = 4.dp, start = 4.dp))
                             }
                         }
                     }
